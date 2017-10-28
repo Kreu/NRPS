@@ -216,19 +216,19 @@ void GenBankParser::parseFeatures() {
 	while (getline(file, currentLine)) {
 
 		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
+		//Build the last feature object and quit
 		if (currentLine.find("ORIGIN") != std::string::npos) {
+
 			featureContent[foundKeyword].push_back(currentFeatureContent);
-
-			//Just for testing purposes, will be removed in final edition
-			for (auto& k : featureContent) {
-				std::cout << k.first << "\n";
-				for (auto& line : k.second) {
-					std::cout << line << "\n";
-				}
-				std::cout << "---------------------------------------------" << "\nDone with a FEATURE\n" <<
-					"---------------------------------------------\n";
+			try {
+				Feature feature = Feature(featureContent);
+				featureContent.clear();
+				return;
 			}
-
+			catch (const std::invalid_argument& e) {
+				std::cout << e.what();
+				return;
+			}
 			return;
 		}
 
@@ -236,16 +236,24 @@ void GenBankParser::parseFeatures() {
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
 			if (currentLine.find(keywords.first) != std::string::npos) {
-				//Keep track of the feature keyword that we found
-				foundKeyword = keywords.first;
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
 				if (readingAFeature == true) {
 					featureContent[foundKeyword].push_back(currentFeatureContent);
-					Feature feature = Feature(featureContent);
-					featureContent.clear();
+
+					try {
+						Feature feature = Feature(featureContent);
+						featureContent.clear();
+					}
+					catch (const std::invalid_argument& e) {
+						std::cout << e.what();
+					}
+					
 				}
+
+				//Keep track of the feature keyword that we found
+				foundKeyword = keywords.first;
 
 				readingAFeature = true;
 				foundFeatureType = true;

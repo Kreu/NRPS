@@ -2,6 +2,7 @@
 
 class Feature {
 private:
+	std::string featureType;
 public:
-	Feature(std::map<std::string, std::vector<std::string>>);
+	Feature(const std::map<std::string, std::vector<std::string>>&);
 };
