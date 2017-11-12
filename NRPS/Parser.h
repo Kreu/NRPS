@@ -3,6 +3,8 @@
 
 enum FileState { OPEN, CLOSED, FILEALREADYOPEN, FILEMISSING, NOFILEOPEN };
 
+class Header;
+
 class Parser {
 protected:
 	std::ifstream file;
@@ -13,6 +15,7 @@ public:
 
 	virtual void parseFeatures() = 0;
 	virtual void parseHeader() = 0;
+	virtual Header& getHeader() = 0;
 
 	virtual ~Parser();
 

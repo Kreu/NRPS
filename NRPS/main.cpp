@@ -7,10 +7,12 @@ int main()
 {
 	//Run tests
 	ParserTests parserTests = ParserTests();
-	//parserTests.testAll();
+	GenBankParserTests genbankParserTests = GenBankParserTests();
+	parserTests.testAll();
+	genbankParserTests.testAll();
 
 	Parser& genBankParser = GenBankParser();
-	genBankParser.loadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\AE000516.2.cluster001.gbk");
+	genBankParser.loadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 	genBankParser.parseHeader();
 	genBankParser.parseFeatures();
 

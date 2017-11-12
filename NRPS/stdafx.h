@@ -17,6 +17,10 @@
 
 #include "Parser.h"
 #include "GenBankParser.h"
-#include "ParserTests.h"
+#include "Feature.h"
+#include "Header.h"
 
+//Tests
+#include "ParserTests.h"
+#include "GenBankParserTests.h"
 // TODO: reference additional headers your program requires here

@@ -219,10 +219,11 @@ void GenBankParser::parseFeatures() {
 		//Build the last feature object and quit
 		if (currentLine.find("ORIGIN") != std::string::npos) {
 
-			featureContent[foundKeyword].push_back(currentFeatureContent);
+			mFeatureContent[foundKeyword].push_back(currentFeatureContent);
 			try {
-				Feature feature = Feature(featureContent);
-				featureContent.clear();
+				Feature feature = Feature(mFeatureContent);
+				mFeatures.push_back(feature);
+				mFeatureContent.clear();
 				return;
 			}
 			catch (const std::invalid_argument& e) {
@@ -240,11 +241,11 @@ void GenBankParser::parseFeatures() {
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
 				if (readingAFeature == true) {
-					featureContent[foundKeyword].push_back(currentFeatureContent);
+					mFeatureContent[foundKeyword].push_back(currentFeatureContent);
 
 					try {
-						Feature feature = Feature(featureContent);
-						featureContent.clear();
+						Feature feature = Feature(mFeatureContent);
+						mFeatureContent.clear();
 					}
 					catch (const std::invalid_argument& e) {
 						std::cout << e.what();
@@ -268,3 +269,11 @@ void GenBankParser::parseFeatures() {
 		}
 	}
 };
+
+std::vector<Feature>& GenBankParser::getFeatures() {
+	return mFeatures;
+}
+
+Header& GenBankParser::getHeader() {
+	return mHeader;
+}
