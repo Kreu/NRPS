@@ -198,12 +198,15 @@ void GenBankParser::parseFeatures() {
 					AAAVDRAREHGLPFLFFTDQATGRGQLLYSRYDGNLGLITPTGDGVADGLA"
 
 
+	TO-DO!!!
+
 	Instead of having a list of every possible features (which is impossible because
 	people define their own feature types), I am instead detecting whether a line
 	contains a feature and appending it into a dictionary. I have prepopulated it with
 	some features that I know exist in these files.
 	*/
 
+	//Make sure that a file is actually open
 	if (!file.is_open()) {
 		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
 		return;
@@ -220,8 +223,8 @@ void GenBankParser::parseFeatures() {
 	std::string currentLine, foundKeyword;
 	std::string currentFeatureContent;
 	bool foundFeatureKeyword = false;
-	bool readingAFeature = false;
 	bool foundRightKeyword = false;
+	bool parsingAFeature = false;
 
 	while (getline(file, currentLine)) {
 
@@ -251,11 +254,12 @@ void GenBankParser::parseFeatures() {
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
-				if ((readingAFeature == true) && (foundRightKeyword == true)) {
+				if ((parsingAFeature == true) && (foundRightKeyword == true)) {
 					//std::cout << "Writing a Feature!\n";
 					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
 					try {
 						Feature feature = Feature(mFeatureContent_);
+						mFeatures_.push_back(feature);
 						mFeatureContent_.clear();
 					}
 					catch (const std::invalid_argument& e) {
@@ -298,7 +302,7 @@ void GenBankParser::parseFeatures() {
 				}
 
 				//std::cout << "Appending " << currentLine.substr(keywords.second) << " for keyword " << foundKeyword << "\n";
-				readingAFeature = true;
+				parsingAFeature = true;
 				foundRightKeyword = true;
 				foundFeatureKeyword = true;
 				currentFeatureContent = currentLine.substr(keywords.second);
@@ -307,7 +311,7 @@ void GenBankParser::parseFeatures() {
 
 		//Multi-line header comment
 		const std::string STRING_SPACER(" ");
-		if ((readingAFeature == true) && (foundFeatureKeyword == false)) {
+		if ((parsingAFeature == true) && (foundFeatureKeyword == false)) {
 			currentFeatureContent.append(STRING_SPACER);
 			currentFeatureContent.append(currentLine.substr(FEATURE_KEYWORDS.at(foundKeyword)));
 		}
