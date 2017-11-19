@@ -25,14 +25,9 @@ int main()
 	genBankParser.parseFeatures();
 	std::vector<Feature>& features = genBankParser.getFeatures();
 
-	//for (auto c : header.getHeaderContent()) {
-	//	std::cout << c.first << "\n";
-	//	for (auto e : c.second) {
-	//		std::cout << e << "\n";
-	//	}
-	//}
-
-	
+	for (auto f : features) {
+		f.printFeature();
+	}
 
 	int var = 0;
 	std::cin >> var;

@@ -4,7 +4,9 @@
 
 class Feature {
 private:
-	std::string featureType;
+	std::string mFeatureType_;
+	std::vector<std::string> mFeatureContents_;
 public:
 	Feature(const std::map<std::string, std::vector<std::string>>&);
+	void printFeature();
 };
