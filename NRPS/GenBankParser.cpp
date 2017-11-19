@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GenBankParser.h"
-#include <array>
+#include "Header.h"
+#include "Feature.h"
 
 using KeywordSpacer = int;
 
@@ -60,7 +61,7 @@ void GenBankParser::parseHeader() {
 																   {"JOURNAL", 10},
 																   {"PUBMED", 10} };
 
-	//Keep just in case
+	//Keep in case I make it back into an array
 	//const std::array<std::string, 12> HEADER_KEYWORDS = {"LOCUS",
 	//													"DEFINITION",
 	//													"ACCESSION",
@@ -88,7 +89,17 @@ void GenBankParser::parseHeader() {
 
 		//If we hit "FEATURE", this means we are out of the header and need to stop.
 		if (currentLine.find("FEATURES") != std::string::npos) {
-			headerContent.push_back(currentHeaderContent);
+			mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
+
+			try {
+				mHeader_ = Header(mHeaderContent_);
+				/*mHeaderContent_.clear();*/
+				return;
+			}
+			catch (const std::invalid_argument& e) {
+				std::cout << e.what();
+				return;
+			}
 			return;
 		}
 
@@ -96,14 +107,14 @@ void GenBankParser::parseHeader() {
 
 		for (const auto& keywords : HEADER_KEYWORDS) {
 			if (currentLine.find(keywords.first) != std::string::npos) {
-				//Keep track of the keyword we found
-				foundKeyword = keywords.first;
-
 				//If we find a header keyword but have already been reading in a header,
 				//we need to append the previous content into the headerContent map.
 				if (readingAHeader == true) {
-					headerContent.push_back(currentHeaderContent);
+					mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
 				}
+
+				//Keep track of the keyword we found
+				foundKeyword = keywords.first;
 
 				readingAHeader = true;
 				foundHeaderKeyword = true;
@@ -187,68 +198,148 @@ void GenBankParser::parseFeatures() {
 					AAAVDRAREHGLPFLFFTDQATGRGQLLYSRYDGNLGLITPTGDGVADGLA"
 
 
-	Instead of having a list of every possible features (which is impossible because 
-	people define their own feature types), I am instead detecting whether a line 
+	TO-DO!!!
+
+	Instead of having a list of every possible features (which is impossible because
+	people define their own feature types), I am instead detecting whether a line
 	contains a feature and appending it into a dictionary. I have prepopulated it with
 	some features that I know exist in these files.
 	*/
 
+	//Make sure that a file is actually open
 	if (!file.is_open()) {
 		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
 		return;
 	}
 
-	const std::string STRING_SPACER(" ");
-	
+
 	//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
 	//encountered in GenBank files.
 	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
-																    {"gene", 21},
-																    {"CDS", 21},
-																    {"aSDomain", 21},
-																    {"CDS_motif", 21} };
-
+																	{"gene", 21},
+																	{"CDS_motif", 21},
+																	{"aSDomain", 21},
+																	{"CDS", 21} };
 	std::string currentLine, foundKeyword;
 	std::string currentFeatureContent;
-	bool foundFeatureType = false;
-	bool readingAFeature = false;
+	bool foundFeatureKeyword = false;
+	bool foundRightKeyword = false;
+	bool parsingAFeature = false;
 
 	while (getline(file, currentLine)) {
 
 		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
+		//Build the last feature object and quit
 		if (currentLine.find("ORIGIN") != std::string::npos) {
-			featureContent.push_back(currentFeatureContent);
 
-			for (auto c : featureContent) {
-				std::cout << c << "\n";
+			mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+			try {
+				Feature feature = Feature(mFeatureContent_);
+				mFeatures_.push_back(feature);
+				mFeatureContent_.clear();
+				return;
 			}
-
+			catch (const std::invalid_argument& e) {
+				std::cout << e.what();
+				return;
+			}
 			return;
 		}
 
-		foundFeatureType = false;
+		foundFeatureKeyword = false;
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
-			if (currentLine.find(keywords.first) != std::string::npos) {
-				//Keep track of the feature keyword that we found
-				foundKeyword = keywords.first;
+			//std::cout << "Processing " << currentLine << "\n";
+			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
 
 				//If we find a feature keyword but have already been reading in a feature,
-				//we need to append the previous content into the featureContent map.
-				if (readingAFeature == true) {
-					featureContent.push_back(currentFeatureContent);
+				//we need to create a Feature object with all the information available.
+				if ((parsingAFeature == true) && (foundRightKeyword == true)) {
+					//std::cout << "Writing a Feature!\n";
+					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+					try {
+						Feature feature = Feature(mFeatureContent_);
+						mFeatures_.push_back(feature);
+						mFeatureContent_.clear();
+					}
+					catch (const std::invalid_argument& e) {
+						std::cout << e.what();
+					}
 				}
 
-				readingAFeature = true;
-				foundFeatureType = true;
+				//std::cout << "Found a keyword " << keywords.first << "\n";
+
+				//If we find a keyword, the next goal is to find out which keyword it is exactly
+				//This is because this will match for CDS and CDS_motif, for example. So we need to distinguish
+				//between these two options
+
+				//Get the substring that actually represents the keyword in a line
+				std::string actualKeyword = currentLine.substr(0, 21);
+				actualKeyword.erase(std::remove_if(actualKeyword.begin(), actualKeyword.end(), isspace), actualKeyword.end());
+
+				//Need to check the keyword we're comparing against isn't shorter than our unknown, otherwise this operation 
+				//isn't safe.
+				//std::cout << "Checking if the two keywords are equal\n";
+				if (keywords.first.size() <= actualKeyword.size()) {
+					auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), actualKeyword.begin());
+
+					//If the mismatch occurs at a position that is the end of the known keyword, this means the 
+					//unknown is longer and is therefore correct. Although it doesn't track the found keywords atm
+					//TO-DO
+					//If we find a keyword, keep a note of it and compare against that in the next iteration to get
+					//the longest possible keyword. For example: CDS, CDS_motif and CDS_motiftype should find
+					//CDS_motiftype, but may find CDS_motif instead.
+
+					if ((result.first == keywords.first.end()) && (result.second != actualKeyword.end())) {
+						//std::cout << "The actual keyword " << actualKeyword << " is longer than the pattern " << keywords.first << "\n";
+						foundRightKeyword = false;
+						continue;
+					}
+					else {
+						//But if there isn't a mismatch, we found the correct keyword that has no alternatives.
+						foundKeyword = keywords.first;
+					}
+				}
+
+				//std::cout << "Appending " << currentLine.substr(keywords.second) << " for keyword " << foundKeyword << "\n";
+				parsingAFeature = true;
+				foundRightKeyword = true;
+				foundFeatureKeyword = true;
 				currentFeatureContent = currentLine.substr(keywords.second);
 			}
 		}
 
 		//Multi-line header comment
-		if ((readingAFeature == true) && (foundFeatureType == false)) {
+		const std::string STRING_SPACER(" ");
+		if ((parsingAFeature == true) && (foundFeatureKeyword == false)) {
 			currentFeatureContent.append(STRING_SPACER);
 			currentFeatureContent.append(currentLine.substr(FEATURE_KEYWORDS.at(foundKeyword)));
 		}
 	}
 };
+
+std::vector<Feature>& GenBankParser::getFeatures() {
+	return mFeatures_;
+}
+
+Header& GenBankParser::getHeader() {
+	return mHeader_;
+}
+
+FileState GenBankParser::closeFile() {
+	//When closing a file, we need to reset all members.
+	if (file.is_open()) {
+		mHeaderContent_.clear();
+		mFeatureContent_.clear();
+		mFeatures_.clear();
+		mHeader_.clear();
+
+		file.close();
+		std::cout << "Closed open file.\n";
+		return CLOSED;
+	}
+	else {
+		std::cout << "A file is not currently open.\n";
+		return NOFILEOPEN;
+	}
+}

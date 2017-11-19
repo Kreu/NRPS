@@ -14,9 +14,6 @@
 #include <fstream>
 #include <vector>
 #include <map>
-
-#include "Parser.h"
-#include "GenBankParser.h"
-#include "ParserTests.h"
-
+#include <algorithm>
+#include <regex>
 // TODO: reference additional headers your program requires here
