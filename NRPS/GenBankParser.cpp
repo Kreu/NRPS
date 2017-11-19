@@ -204,70 +204,55 @@ void GenBankParser::parseFeatures() {
 	some features that I know exist in these files.
 	*/
 
-if (!file.is_open()) {
-	std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
-	return;
-}
-
-
-//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
-//encountered in GenBank files.
-const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
-																{"gene", 21},
-																{"CDS_motif", 21},
-																{"aSDomain", 21},
-																{"CDS", 21} };
-std::string currentLine, foundKeyword;
-std::string currentFeatureContent;
-bool foundFeatureType = false;
-bool readingAFeature = false;
-
-while (getline(file, currentLine)) {
-
-	//If we hit "ORIGIN", this means we are out of the feature and need to stop.
-	//Build the last feature object and quit
-	if (currentLine.find("ORIGIN") != std::string::npos) {
-
-		mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
-		try {
-			Feature feature = Feature(mFeatureContent_);
-			mFeatures_.push_back(feature);
-			mFeatureContent_.clear();
-			return;
-		}
-		catch (const std::invalid_argument& e) {
-			std::cout << e.what();
-			return;
-		}
+	if (!file.is_open()) {
+		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
 		return;
 	}
 
-	foundFeatureType = false;
 
-	for (const auto& keywords : FEATURE_KEYWORDS) {
-		std::string actualKeyword = currentLine.substr(0, 21);
-		actualKeyword.erase(std::remove_if(actualKeyword.begin(), actualKeyword.end(), isspace), actualKeyword.end());
+	//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
+	//encountered in GenBank files.
+	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
+																	{"gene", 21},
+																	{"CDS_motif", 21},
+																	{"aSDomain", 21},
+																	{"CDS", 21} };
+	std::string currentLine, foundKeyword;
+	std::string currentFeatureContent;
+	bool foundFeatureKeyword = false;
+	bool readingAFeature = false;
+	bool foundRightKeyword = false;
 
-		if (keywords.first.size() <= actualKeyword.size()) {
-			auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), actualKeyword.begin());
+	while (getline(file, currentLine)) {
 
-			if (result.first == keywords.first.end() && result.second != actualKeyword.end()) {
-				foundKeyword = actualKeyword;
+		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
+		//Build the last feature object and quit
+		if (currentLine.find("ORIGIN") != std::string::npos) {
+
+			mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+			try {
+				Feature feature = Feature(mFeatureContent_);
+				mFeatures_.push_back(feature);
+				mFeatureContent_.clear();
+				return;
 			}
+			catch (const std::invalid_argument& e) {
+				std::cout << e.what();
+				return;
+			}
+			return;
 		}
-	}
+
+		foundFeatureKeyword = false;
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
-			//TO-DO
-			//This comparison needs to make sure it matches the longest substring, and not just every Feature type
-			//For example, "CDS_motif" matches "CDS" and creates a wrong Feature object out of it
-			//Currently this does not work
-
+			//std::cout << "Processing " << currentLine << "\n";
 			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
-				if (readingAFeature == true) {
+				if ((readingAFeature == true) && (foundRightKeyword == true)) {
+					//std::cout << "Writing a Feature!\n";
 					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
 					try {
 						Feature feature = Feature(mFeatureContent_);
@@ -276,21 +261,53 @@ while (getline(file, currentLine)) {
 					catch (const std::invalid_argument& e) {
 						std::cout << e.what();
 					}
-					
 				}
 
-				//Keep track of the feature keyword that we found
-				foundKeyword = keywords.first;
+				//std::cout << "Found a keyword " << keywords.first << "\n";
 
+				//If we find a keyword, the next goal is to find out which keyword it is exactly
+				//This is because this will match for CDS and CDS_motif, for example. So we need to distinguish
+				//between these two options
+
+				//Get the substring that actually represents the keyword in a line
+				std::string actualKeyword = currentLine.substr(0, 21);
+				actualKeyword.erase(std::remove_if(actualKeyword.begin(), actualKeyword.end(), isspace), actualKeyword.end());
+
+				//Need to check the keyword we're comparing against isn't shorter than our unknown, otherwise this operation 
+				//isn't safe.
+				//std::cout << "Checking if the two keywords are equal\n";
+				if (keywords.first.size() <= actualKeyword.size()) {
+					auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), actualKeyword.begin());
+
+					//If the mismatch occurs at a position that is the end of the known keyword, this means the 
+					//unknown is longer and is therefore correct. Although it doesn't track the found keywords atm
+					//TO-DO
+					//If we find a keyword, keep a note of it and compare against that in the next iteration to get
+					//the longest possible keyword. For example: CDS, CDS_motif and CDS_motiftype should find
+					//CDS_motiftype, but may find CDS_motif instead.
+
+					if ((result.first == keywords.first.end()) && (result.second != actualKeyword.end())) {
+						//std::cout << "The actual keyword " << actualKeyword << " is longer than the pattern " << keywords.first << "\n";
+						foundRightKeyword = false;
+						continue;
+					}
+					else {
+						//But if there isn't a mismatch, we found the correct keyword that has no alternatives.
+						foundKeyword = keywords.first;
+					}
+				}
+
+				//std::cout << "Appending " << currentLine.substr(keywords.second) << " for keyword " << foundKeyword << "\n";
 				readingAFeature = true;
-				foundFeatureType = true;
+				foundRightKeyword = true;
+				foundFeatureKeyword = true;
 				currentFeatureContent = currentLine.substr(keywords.second);
 			}
 		}
 
 		//Multi-line header comment
 		const std::string STRING_SPACER(" ");
-		if ((readingAFeature == true) && (foundFeatureType == false)) {
+		if ((readingAFeature == true) && (foundFeatureKeyword == false)) {
 			currentFeatureContent.append(STRING_SPACER);
 			currentFeatureContent.append(currentLine.substr(FEATURE_KEYWORDS.at(foundKeyword)));
 		}
