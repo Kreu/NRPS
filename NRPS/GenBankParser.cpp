@@ -215,9 +215,9 @@ void GenBankParser::parseFeatures() {
 	//encountered in GenBank files.
 	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
 																    {"gene", 21},
-																    {"CDS", 21},
+																    {"CDS_motif", 21},
 																    {"aSDomain", 21},
-																    {"CDS_motif", 21} };
+																    {"CDS", 21} };
 
 	std::string currentLine, foundKeyword;
 	std::string currentFeatureContent;
@@ -246,45 +246,19 @@ void GenBankParser::parseFeatures() {
 
 		foundFeatureType = false;
 
-		//Find the correct keyword that matches
 		for (const auto& keywords : FEATURE_KEYWORDS) {
-
+			//TO-DO
 			//This comparison needs to make sure it matches the longest substring, and not just every Feature type
 			//For example, "CDS_motif" matches "CDS" and creates a wrong Feature object out of it
-			std::regex pattern(keywords.first);
-			std::smatch matches;
+			//Currently this does not work
 
-			if (std::regex_search (currentLine, matches, pattern)) {
-				std::cout << "Following matches were found:\n";
-				for (auto c : matches) {
-					std::cout << c << "\n";
-				}
-			}
 
 			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
-				//Check that the keyword we found isn't actually part of a longer keyword
-				//for (const auto& kwds : FEATURE_KEYWORDS) {
-				//	//Make sure the second string is larger than first string, otherwise the mismatch will be an invalid pointer.
-				//	//if (kwds.first.size() >= keywords.first.size()) {
-				//	//	auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), kwds.first.begin());
-				//	//	if (result.first == keywords.first.end()) {
-				//	//		std::cout << "Found " << kwds.first << " in " << keywords.first << "\n";
-				//	//	}
-				//	//}
-
-
-
-				///*	if (currentLine.find(k.first) > matchPosition)) {
-				//	std::cout << "Was " << keywords.first << ", now is " << k.first << "\n";
-				//		foundKeyword = k.first;
-				//	}*/
-				//}				
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
 				if (readingAFeature == true) {
 					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
-
 					try {
 						Feature feature = Feature(mFeatureContent_);
 						mFeatureContent_.clear();

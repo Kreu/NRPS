@@ -12,16 +12,16 @@ Feature::Feature(const std::map<std::string, std::vector<std::string>>& featureC
 	}
 
 	//Unpack the map
-	//for (auto& k : featureContent) {
-	//	featureType = k.first;
+	for (auto& k : featureContent) {
+		featureType = k.first;
 
-	//	std::cout << featureType << "\n";
-	//	for (auto& line : k.second) {
-	//		std::cout << line << "\n";
-	//	}
-	//	std::cout << "---------------------------------------------" << "\nDone with a FEATURE\n" <<
-	//		"---------------------------------------------\n";
-	//}
+		std::cout << featureType << "\n";
+		for (auto& line : k.second) {
+			std::cout << line << "\n";
+		}
+		std::cout << "---------------------------------------------" << "\nDone with a FEATURE\n" <<
+			"---------------------------------------------\n";
+	}
 
 
 };
