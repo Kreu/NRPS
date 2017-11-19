@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GenBankParser.h"
-#include <array>
+#include "Header.h"
+#include "Feature.h"
 
 using KeywordSpacer = int;
 
@@ -60,7 +61,7 @@ void GenBankParser::parseHeader() {
 																   {"JOURNAL", 10},
 																   {"PUBMED", 10} };
 
-	//Keep just in case
+	//Keep in case I make it back into an array
 	//const std::array<std::string, 12> HEADER_KEYWORDS = {"LOCUS",
 	//													"DEFINITION",
 	//													"ACCESSION",
@@ -88,7 +89,17 @@ void GenBankParser::parseHeader() {
 
 		//If we hit "FEATURE", this means we are out of the header and need to stop.
 		if (currentLine.find("FEATURES") != std::string::npos) {
-			headerContent.push_back(currentHeaderContent);
+			mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
+
+			try {
+				mHeader_ = Header(mHeaderContent_);
+				/*mHeaderContent_.clear();*/
+				return;
+			}
+			catch (const std::invalid_argument& e) {
+				std::cout << e.what();
+				return;
+			}
 			return;
 		}
 
@@ -96,14 +107,14 @@ void GenBankParser::parseHeader() {
 
 		for (const auto& keywords : HEADER_KEYWORDS) {
 			if (currentLine.find(keywords.first) != std::string::npos) {
-				//Keep track of the keyword we found
-				foundKeyword = keywords.first;
-
 				//If we find a header keyword but have already been reading in a header,
 				//we need to append the previous content into the headerContent map.
 				if (readingAHeader == true) {
-					headerContent.push_back(currentHeaderContent);
+					mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
 				}
+
+				//Keep track of the keyword we found
+				foundKeyword = keywords.first;
 
 				readingAHeader = true;
 				foundHeaderKeyword = true;
@@ -219,11 +230,11 @@ void GenBankParser::parseFeatures() {
 		//Build the last feature object and quit
 		if (currentLine.find("ORIGIN") != std::string::npos) {
 
-			mFeatureContent[foundKeyword].push_back(currentFeatureContent);
+			mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
 			try {
-				Feature feature = Feature(mFeatureContent);
-				mFeatures.push_back(feature);
-				mFeatureContent.clear();
+				Feature feature = Feature(mFeatureContent_);
+				mFeatures_.push_back(feature);
+				mFeatureContent_.clear();
 				return;
 			}
 			catch (const std::invalid_argument& e) {
@@ -235,17 +246,48 @@ void GenBankParser::parseFeatures() {
 
 		foundFeatureType = false;
 
+		//Find the correct keyword that matches
 		for (const auto& keywords : FEATURE_KEYWORDS) {
-			if (currentLine.find(keywords.first) != std::string::npos) {
+
+			//This comparison needs to make sure it matches the longest substring, and not just every Feature type
+			//For example, "CDS_motif" matches "CDS" and creates a wrong Feature object out of it
+			std::regex pattern(keywords.first);
+			std::smatch matches;
+
+			if (std::regex_search (currentLine, matches, pattern)) {
+				std::cout << "Following matches were found:\n";
+				for (auto c : matches) {
+					std::cout << c << "\n";
+				}
+			}
+
+			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
+				//Check that the keyword we found isn't actually part of a longer keyword
+				//for (const auto& kwds : FEATURE_KEYWORDS) {
+				//	//Make sure the second string is larger than first string, otherwise the mismatch will be an invalid pointer.
+				//	//if (kwds.first.size() >= keywords.first.size()) {
+				//	//	auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), kwds.first.begin());
+				//	//	if (result.first == keywords.first.end()) {
+				//	//		std::cout << "Found " << kwds.first << " in " << keywords.first << "\n";
+				//	//	}
+				//	//}
+
+
+
+				///*	if (currentLine.find(k.first) > matchPosition)) {
+				//	std::cout << "Was " << keywords.first << ", now is " << k.first << "\n";
+				//		foundKeyword = k.first;
+				//	}*/
+				//}				
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
 				if (readingAFeature == true) {
-					mFeatureContent[foundKeyword].push_back(currentFeatureContent);
+					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
 
 					try {
-						Feature feature = Feature(mFeatureContent);
-						mFeatureContent.clear();
+						Feature feature = Feature(mFeatureContent_);
+						mFeatureContent_.clear();
 					}
 					catch (const std::invalid_argument& e) {
 						std::cout << e.what();
@@ -271,9 +313,27 @@ void GenBankParser::parseFeatures() {
 };
 
 std::vector<Feature>& GenBankParser::getFeatures() {
-	return mFeatures;
+	return mFeatures_;
 }
 
 Header& GenBankParser::getHeader() {
-	return mHeader;
+	return mHeader_;
+}
+
+FileState GenBankParser::closeFile() {
+	//When closing a file, we need to reset all members.
+	if (file.is_open()) {
+		mHeaderContent_.clear();
+		mFeatureContent_.clear();
+		mFeatures_.clear();
+		mHeader_.clear();
+
+		file.close();
+		std::cout << "Closed open file.\n";
+		return CLOSED;
+	}
+	else {
+		std::cout << "A file is not currently open.\n";
+		return NOFILEOPEN;
+	}
 }

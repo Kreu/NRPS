@@ -1,2 +1,3 @@
-﻿  stdafx.cpp
-c:\users\valdeko\source\repos\nrps\nrps\genbankparser.h(13): error C2079: 'GenBankParser::mHeader' uses undefined class 'Header'
+﻿  GenBankParser.cpp
+  NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\Debug\NRPS.exe
+  NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\Debug\NRPS.pdb (Partial PDB)

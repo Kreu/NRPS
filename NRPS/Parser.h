@@ -4,6 +4,7 @@
 enum FileState { OPEN, CLOSED, FILEALREADYOPEN, FILEMISSING, NOFILEOPEN };
 
 class Header;
+class Feature;
 
 class Parser {
 protected:
@@ -11,12 +12,12 @@ protected:
 
 public:
 	FileState loadFile(const std::string&);
-	FileState closeFile();
+	virtual FileState closeFile();
 
 	virtual void parseFeatures() = 0;
 	virtual void parseHeader() = 0;
 	virtual Header& getHeader() = 0;
-
+	virtual std::vector<Feature>& getFeatures() = 0;
 	virtual ~Parser();
 
 };
