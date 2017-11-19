@@ -198,60 +198,70 @@ void GenBankParser::parseFeatures() {
 					AAAVDRAREHGLPFLFFTDQATGRGQLLYSRYDGNLGLITPTGDGVADGLA"
 
 
-	Instead of having a list of every possible features (which is impossible because 
-	people define their own feature types), I am instead detecting whether a line 
+	Instead of having a list of every possible features (which is impossible because
+	people define their own feature types), I am instead detecting whether a line
 	contains a feature and appending it into a dictionary. I have prepopulated it with
 	some features that I know exist in these files.
 	*/
 
-	if (!file.is_open()) {
-		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
+if (!file.is_open()) {
+	std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
+	return;
+}
+
+
+//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
+//encountered in GenBank files.
+const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
+																{"gene", 21},
+																{"CDS_motif", 21},
+																{"aSDomain", 21},
+																{"CDS", 21} };
+std::string currentLine, foundKeyword;
+std::string currentFeatureContent;
+bool foundFeatureType = false;
+bool readingAFeature = false;
+
+while (getline(file, currentLine)) {
+
+	//If we hit "ORIGIN", this means we are out of the feature and need to stop.
+	//Build the last feature object and quit
+	if (currentLine.find("ORIGIN") != std::string::npos) {
+
+		mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+		try {
+			Feature feature = Feature(mFeatureContent_);
+			mFeatures_.push_back(feature);
+			mFeatureContent_.clear();
+			return;
+		}
+		catch (const std::invalid_argument& e) {
+			std::cout << e.what();
+			return;
+		}
 		return;
 	}
 
-	const std::string STRING_SPACER(" ");
-	
-	//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
-	//encountered in GenBank files.
-	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
-																    {"gene", 21},
-																    {"CDS_motif", 21},
-																    {"aSDomain", 21},
-																    {"CDS", 21} };
+	foundFeatureType = false;
 
-	std::string currentLine, foundKeyword;
-	std::string currentFeatureContent;
-	bool foundFeatureType = false;
-	bool readingAFeature = false;
+	for (const auto& keywords : FEATURE_KEYWORDS) {
+		std::string actualKeyword = currentLine.substr(0, 21);
+		actualKeyword.erase(std::remove_if(actualKeyword.begin(), actualKeyword.end(), isspace), actualKeyword.end());
 
-	while (getline(file, currentLine)) {
+		if (keywords.first.size() <= actualKeyword.size()) {
+			auto result = std::mismatch(keywords.first.begin(), keywords.first.end(), actualKeyword.begin());
 
-		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
-		//Build the last feature object and quit
-		if (currentLine.find("ORIGIN") != std::string::npos) {
-
-			mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
-			try {
-				Feature feature = Feature(mFeatureContent_);
-				mFeatures_.push_back(feature);
-				mFeatureContent_.clear();
-				return;
+			if (result.first == keywords.first.end() && result.second != actualKeyword.end()) {
+				foundKeyword = actualKeyword;
 			}
-			catch (const std::invalid_argument& e) {
-				std::cout << e.what();
-				return;
-			}
-			return;
 		}
-
-		foundFeatureType = false;
+	}
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
 			//TO-DO
 			//This comparison needs to make sure it matches the longest substring, and not just every Feature type
 			//For example, "CDS_motif" matches "CDS" and creates a wrong Feature object out of it
 			//Currently this does not work
-
 
 			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
 
@@ -279,6 +289,7 @@ void GenBankParser::parseFeatures() {
 		}
 
 		//Multi-line header comment
+		const std::string STRING_SPACER(" ");
 		if ((readingAFeature == true) && (foundFeatureType == false)) {
 			currentFeatureContent.append(STRING_SPACER);
 			currentFeatureContent.append(currentLine.substr(FEATURE_KEYWORDS.at(foundKeyword)));
