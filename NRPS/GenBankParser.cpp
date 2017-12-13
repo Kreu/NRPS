@@ -5,13 +5,11 @@
 
 using KeywordSpacer = int;
 
-GenBankParser::GenBankParser(const std::string& filename) 
-try : file_(filename) {
-	ParseFeatures();
-	ParseHeader();
-}
-catch (std::runtime_error& e) {
-	throw e;
+GenBankParser::GenBankParser(const std::string& filename) : file_(filename) {
+	if (file_.GetState() == FILESTATE::OPEN) {
+		ParseFeatures();
+		ParseHeader();
+	}
 }
 
 void GenBankParser::ParseHeader() {

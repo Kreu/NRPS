@@ -5,8 +5,6 @@
 #include "Feature.h"
 #include "File.h"
 
-enum FileState { OPEN, CLOSED, FILE_ALREADY_OPEN, NO_FILE_OPEN };
-
 class GenBankParser {
 private:
 	std::map<std::string, std::vector<std::string>> header_content_;

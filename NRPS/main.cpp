@@ -15,18 +15,13 @@ int main()
 	//parserTests.testAll();
 	//genbankParserTests.testAll();
 
-	try {
-		GenBankParser parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
-		Header& header = parser.GetHeader();
-		header.printHeaderContent();
-		std::vector<Feature>& features = parser.GetFeatures();
+	GenBankParser parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
+	Header& header = parser.GetHeader();
+	header.printHeaderContent();
+	std::vector<Feature>& features = parser.GetFeatures();
 
-		for (auto c : features) {
-			c.printFeature();
-		}
-	}
-	catch (std::runtime_error& e) {
-		std::cout << e.what() << "\n";
+	for (auto c : features) {
+		c.printFeature();
 	}
 
     return 0;
