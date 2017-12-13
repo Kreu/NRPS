@@ -2,9 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "ParserTests.h"
-#include "GenBankParserTests.h"
-#include "Parser.h"
+//#include "ParserTests.h"
+//#include "GenBankParserTests.h"
 #include "GenBankParser.h"
 
 
@@ -16,19 +15,16 @@ int main()
 	//parserTests.testAll();
 	//genbankParserTests.testAll();
 
-	GenBankParser genBankParser = GenBankParser();
-	genBankParser.LoadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
+	GenBankParser genBankParser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 
-	genBankParser.parseHeader();
-	Header& header = genBankParser.getHeader();
+	Header& header = genBankParser.GetHeader();
 	header.printHeaderContent();
 	
-	genBankParser.parseFeatures();
-	std::vector<Feature>& features = genBankParser.getFeatures();
+	std::vector<Feature>& features = genBankParser.GetFeatures();
 
-	//for (auto c : features) {
-	//	c.printFeature();
-	//}
+	for (auto c : features) {
+		c.printFeature();
+	}
 
 	int var = 0;
 	std::cin >> var;

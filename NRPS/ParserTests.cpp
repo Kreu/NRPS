@@ -1,6 +1,5 @@
 #include "stdafx.h"
 //#include <cassert>
-//#include "Parser.h"
 //#include "GenBankParser.h"
 //#include "ParserTests.h"
 //

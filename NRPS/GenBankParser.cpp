@@ -3,12 +3,15 @@
 #include "Header.h"
 #include "Feature.h"
 
-
-
-
 using KeywordSpacer = int;
 
-void GenBankParser::parseHeader() {
+GenBankParser::GenBankParser(const std::string& filename) : file_(filename) {
+	ParseFeatures();
+	ParseHeader();
+}
+
+
+void GenBankParser::ParseHeader() {
 
 	/*
 		Extracts the header from a GenBank file.
@@ -78,15 +81,12 @@ void GenBankParser::parseHeader() {
 	//													"JOURNAL",
 	//													"PUBMED",};
 
-	if (!file.is_open()) {
-		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
-		return;
-	}
 
 	std::string currentLine, foundKeyword;
 	std::string currentHeaderContent;
 	bool foundHeaderKeyword = false;
 	bool readingAHeader = false;
+	std::fstream& file = file_.GetFile();
 
 	while (getline(file, currentLine)) {
 
@@ -133,7 +133,7 @@ void GenBankParser::parseHeader() {
 	}
 };
 
-void GenBankParser::parseFeatures() {
+void GenBankParser::ParseFeatures() {
 
 	//TO-DO
 	//Every feature line that starts with '/' needs to be put into a separate
@@ -209,13 +209,6 @@ void GenBankParser::parseFeatures() {
 	some features that I know exist in these files.
 	*/
 
-	//Make sure that a file is actually open
-	if (!file.is_open()) {
-		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
-		return;
-	}
-
-
 	//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
 	//encountered in GenBank files.
 	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
@@ -228,6 +221,7 @@ void GenBankParser::parseFeatures() {
 	bool foundFeatureKeyword = false;
 	bool foundRightKeyword = false;
 	bool parsingAFeature = false;
+	std::fstream& file = file_.GetFile();
 
 	while (getline(file, currentLine)) {
 
@@ -321,55 +315,23 @@ void GenBankParser::parseFeatures() {
 	}
 };
 
-std::vector<Feature>& GenBankParser::getFeatures() {
+std::vector<Feature>& GenBankParser::GetFeatures() {
 	return mFeatures_;
 }
 
-Header& GenBankParser::getHeader() {
+Header& GenBankParser::GetHeader() {
 	return mHeader_;
 }
 
-FileState GenBankParser::closeFile() {
+FileState GenBankParser::CloseFile() {
 	//When closing a file, we need to reset all members.
+	std::fstream& file = file_.GetFile();
 	if (file.is_open()) {
 		mHeaderContent_.clear();
 		mFeatureContent_.clear();
 		mFeatures_.clear();
 		mHeader_.clear();
 
-		file.close();
-		std::cout << "Closed open file.\n";
-		return CLOSED;
-	}
-	else {
-		std::cout << "A file is not currently open.\n";
-		return NOFILEOPEN;
-	}
-}
-
-
-FileState GenBankParser::LoadFile(const std::string& filename) {
-	//Check that we do not currently have a file open
-	if (file.is_open()) {
-		std::cout << "A file is already open.\n";
-		return FILEALREADYOPEN;
-	}
-
-	std::cout << "Loading " << filename << ".\n";
-	file.open(filename);
-
-	if (file.is_open()) {
-		std::cout << "Opened " << filename << ".\n";
-		return OPEN;
-	}
-	else {
-		std::cout << filename << " could not be located.\n";
-		return FILEMISSING;
-	}
-}
-
-FileState GenBankParser::CloseFile() {
-	if (file.is_open()) {
 		file.close();
 		std::cout << "Closed open file.\n";
 		return CLOSED;

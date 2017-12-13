@@ -19,18 +19,6 @@
     <Filter Include="Header Files\Tests">
       <UniqueIdentifier>{a56b0d39-3a2e-4739-9d58-91f28710ce25}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Parser">
-      <UniqueIdentifier>{6eddbe3e-ac09-4d06-b0dc-00b9c1099c5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Parser">
-      <UniqueIdentifier>{c306e049-1c16-4824-948a-6c7c94e2d50c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Format">
-      <UniqueIdentifier>{c9bb9b4c-79c0-4f64-afdc-1c4f000f97f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Format">
-      <UniqueIdentifier>{30283e8d-d604-40e4-a1c2-d22de855048b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -42,22 +30,16 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GenBankParser.h">
-      <Filter>Header Files\Parser</Filter>
-    </ClInclude>
     <ClInclude Include="Feature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GenBankParserTests.h">
+    <ClInclude Include="GenBankParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParserTests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,22 +50,16 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GenBankParser.cpp">
-      <Filter>Source Files\Parser</Filter>
-    </ClCompile>
     <ClCompile Include="Feature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GenBankParserTests.cpp">
+    <ClCompile Include="GenBankParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParserTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Parser.cpp">
+    <ClCompile Include="File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

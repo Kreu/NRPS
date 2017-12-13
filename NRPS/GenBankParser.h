@@ -1,10 +1,9 @@
 #pragma once
 
 #include "stdafx.h"
-
 #include "Header.h"
-#include "Parser.h"
 #include "Feature.h"
+#include "File.h"
 
 enum FileState { OPEN, CLOSED, FILEALREADYOPEN, FILEMISSING, NOFILEOPEN };
 
@@ -15,18 +14,17 @@ private:
 	std::vector<Feature> mFeatures_;
 	Header mHeader_;
 
-	std::ifstream file;
+	File file_;
 
 public:
-	GenBankParser() {};
+	GenBankParser::GenBankParser(const std::string& filename);
 
-	FileState LoadFile(const std::string&);
+	void ParseFeatures();
+	void ParseHeader();
+
+	Header& GetHeader();
+	std::vector<Feature>& GetFeatures();
+
 	FileState CloseFile();
-
-	void parseFeatures();
-	void parseHeader();
-	FileState closeFile();
-	Header& getHeader();
-	std::vector<Feature>& getFeatures();
 };
 
