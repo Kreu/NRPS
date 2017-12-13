@@ -11,13 +11,13 @@
 int main()
 {
 	//Run tests
-	ParserTests parserTests = ParserTests();
-	GenBankParserTests genbankParserTests = GenBankParserTests();
+	//ParserTests parserTests = ParserTests();
+	//GenBankParserTests genbankParserTests = GenBankParserTests();
 	//parserTests.testAll();
 	//genbankParserTests.testAll();
 
-	Parser& genBankParser = GenBankParser();
-	genBankParser.loadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
+	GenBankParser genBankParser = GenBankParser();
+	genBankParser.LoadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 
 	genBankParser.parseHeader();
 	Header& header = genBankParser.getHeader();
