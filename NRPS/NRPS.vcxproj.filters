@@ -80,11 +80,11 @@
     <ClCompile Include="Feature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GenBankParserTests.cpp">
-      <Filter>Source Files\Tests</Filter>
-    </ClCompile>
     <ClCompile Include="Header.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenBankParserTests.cpp">
+      <Filter>Source Files\Parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

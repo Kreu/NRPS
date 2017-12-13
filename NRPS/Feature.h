@@ -5,7 +5,11 @@
 class Feature {
 private:
 	std::string mFeatureType_;
-	std::vector<std::string> mFeatureContents_;
+	std::map<std::string, std::vector<std::string>> mFeatureContent_;
+	int mFeatureStartLocation_;
+	int mFeatureStopLocation_;
+
+	void unpackFeatureContent(const std::map<std::string, std::vector<std::string>>&);
 public:
 	Feature(const std::map<std::string, std::vector<std::string>>&);
 	void printFeature();

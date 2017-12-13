@@ -14,20 +14,21 @@ int main()
 	ParserTests parserTests = ParserTests();
 	GenBankParserTests genbankParserTests = GenBankParserTests();
 	//parserTests.testAll();
-	genbankParserTests.testAll();
+	//genbankParserTests.testAll();
 
 	Parser& genBankParser = GenBankParser();
 	genBankParser.loadFile("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 
 	genBankParser.parseHeader();
 	Header& header = genBankParser.getHeader();
+	header.printHeaderContent();
 	
 	genBankParser.parseFeatures();
 	std::vector<Feature>& features = genBankParser.getFeatures();
 
-	for (auto f : features) {
-		f.printFeature();
-	}
+	//for (auto c : features) {
+	//	c.printFeature();
+	//}
 
 	int var = 0;
 	std::cin >> var;

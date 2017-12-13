@@ -19,18 +19,86 @@ Feature::Feature(const std::map<std::string, std::vector<std::string>>& featureC
 		throw std::invalid_argument("Map contains too many keys, cannot construct Feature object");
 	}
 
-	//Unpack the map
-	for (const auto& k : featureContent) {
-		mFeatureType_ = k.first;
-		for (const auto& line : k.second) {
-			mFeatureContents_.push_back(line);
-		}
-	}
+	unpackFeatureContent(featureContent);
 };
 
 void Feature::printFeature() {
-	std::cout << "\nFeature type: " << mFeatureType_ << "\n";
-	for (const auto& c : mFeatureContents_) {
-		std::cout << c << "\n";
+	std::cout << "Type: " << mFeatureType_ << "\n";
+	std::cout << "Location " << mFeatureStartLocation_ << " to " << mFeatureStopLocation_ << "\n";
+	for (const auto& c : mFeatureContent_) {
+		std::cout << "Content: " << c.first << "\n";
+		for (auto a : c.second) {
+			if (c.second.size() > 1) {
+				std::cout << a << ", ";
+			}
+			else {
+				std::cout << a;
+			}
+		}
+		std::cout << "\n";
+	}
+}
+
+void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::string>>& content) {
+	//Unpack the map and create a map. The keys are feature types, and the values are strings
+	//For example:
+	//  /asDomain_id = "nrpspksdomains_MT0110_Xdom03"
+	//	/database = "nrpspksdomains.hmm"
+	//	/detection = "hmmscan"
+	//Would create a map with three keys "asDomain_id", "database" and "detection" with values
+	//of "nrpspksdomains_MT0110_Xdom03", "nrpspksdomains.hmm" and "hmmscan", respectively. 
+
+	for (const auto& k : content) {
+		mFeatureType_ = k.first;
+
+		std::smatch matches;
+		//Matches the sequence location of the features, e.g. "23411..23699"
+		std::regex codonLocation("(\\d+)\\.{2}(\\d+)");
+		//Matches the qualifiers within features, e.g. "/asDomain_id="hmmscan"" becomes "asDomain_id"
+		std::regex feature("(\\/.*?)(?:\\s|$)(?=\\/|$)");
+
+		std::regex qualifierType("(?:\\/)(\\w*)(?=\=\")");
+		std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
+
+		for (const auto& line : k.second) {
+			
+			//TO-DO
+			//Actually add the codon location
+			if (std::regex_search(line, matches, codonLocation)) {
+				mFeatureStartLocation_ = std::stoi(matches.str(1));
+				mFeatureStopLocation_ = std::stoi(matches.str(2));
+			}
+
+			bool foundFeatureContent = false;
+			bool foundFeatureType = false;
+
+			for (auto it = std::sregex_iterator(line.begin(), line.end(), feature); it != std::sregex_iterator(); ++it) {
+				std::string matchedString = it->str();
+				foundFeatureContent = false;
+				foundFeatureType = false;
+				std::string qualifierContentString, qualifierTypeString;
+
+				if (std::regex_search(matchedString, matches, qualifierType)) {
+					qualifierTypeString = matches.str(1);
+					foundFeatureType = true;
+				}
+
+				if (std::regex_search(matchedString, matches, qualifierContent)) {
+					qualifierContentString = matches.str(1);
+					foundFeatureContent = true;
+				}
+
+				if (foundFeatureContent == true && foundFeatureType == true) {
+					//Need to format the "translation" string because it comes with spaces
+					//in the string.
+					if (qualifierTypeString == "translation") {
+						qualifierContentString.erase(remove_if(qualifierContentString.begin(), qualifierContentString.end(), isspace), qualifierContentString.end());
+					}
+					mFeatureContent_[qualifierTypeString].push_back(qualifierContentString);
+				}
+
+			}
+
+		}
 	}
 }
