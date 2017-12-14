@@ -25,11 +25,6 @@ File::File(const char* filename) {
 	}
 }
 
-std::fstream& File::GetFile() {
-	if (state_ == FILESTATE::OPEN) {
-		return file_;
-	}
-	else {
-		std::cout << "File is not in a open state";
-	}
+std::fstream& File::GetStream() {
+	return file_;
 }

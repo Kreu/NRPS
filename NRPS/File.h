@@ -10,5 +10,5 @@ private:
 public:
 	File(const std::string& filename);
 	File(const char* filename);
-	std::fstream& GetFile();
+	std::fstream& GetStream();
 };
