@@ -5,7 +5,14 @@
 
 using KeywordSpacer = int;
 
-void GenBankParser::parseHeader() {
+GenBankParser::GenBankParser(const std::string& filename) : file_(filename) {
+	if (file_.GetState() == FILESTATE::OPEN) {
+		ParseFeatures();
+		ParseHeader();
+	}
+}
+
+void GenBankParser::ParseHeader() {
 
 	/*
 		Extracts the header from a GenBank file.
@@ -75,31 +82,19 @@ void GenBankParser::parseHeader() {
 	//													"JOURNAL",
 	//													"PUBMED",};
 
-	if (!file.is_open()) {
-		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
-		return;
-	}
 
 	std::string currentLine, foundKeyword;
 	std::string currentHeaderContent;
 	bool foundHeaderKeyword = false;
 	bool readingAHeader = false;
+	std::fstream& file = file_.GetFile();
 
 	while (getline(file, currentLine)) {
 
 		//If we hit "FEATURE", this means we are out of the header and need to stop.
 		if (currentLine.find("FEATURES") != std::string::npos) {
-			mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
-
-			try {
-				mHeader_ = Header(mHeaderContent_);
-				/*mHeaderContent_.clear();*/
-				return;
-			}
-			catch (const std::invalid_argument& e) {
-				std::cout << e.what();
-				return;
-			}
+			header_content_[foundKeyword].push_back(currentHeaderContent);
+			header_ = Header(header_content_);
 			return;
 		}
 
@@ -110,7 +105,7 @@ void GenBankParser::parseHeader() {
 				//If we find a header keyword but have already been reading in a header,
 				//we need to append the previous content into the headerContent map.
 				if (readingAHeader == true) {
-					mHeaderContent_[foundKeyword].push_back(currentHeaderContent);
+					header_content_[foundKeyword].push_back(currentHeaderContent);
 				}
 
 				//Keep track of the keyword we found
@@ -130,7 +125,7 @@ void GenBankParser::parseHeader() {
 	}
 };
 
-void GenBankParser::parseFeatures() {
+void GenBankParser::ParseFeatures() {
 
 	//TO-DO
 	//Every feature line that starts with '/' needs to be put into a separate
@@ -206,13 +201,6 @@ void GenBankParser::parseFeatures() {
 	some features that I know exist in these files.
 	*/
 
-	//Make sure that a file is actually open
-	if (!file.is_open()) {
-		std::cout << "GenBankParser does not have a file associated with it, please load a file using loadFile().\n";
-		return;
-	}
-
-
 	//FEATURE_KEYWORDS is a map that contains a list of possible feature keywords
 	//encountered in GenBank files.
 	const std::map<std::string, KeywordSpacer> FEATURE_KEYWORDS = { {"cluster", 21},
@@ -225,6 +213,7 @@ void GenBankParser::parseFeatures() {
 	bool foundFeatureKeyword = false;
 	bool foundRightKeyword = false;
 	bool parsingAFeature = false;
+	std::fstream& file = file_.GetFile();
 
 	while (getline(file, currentLine)) {
 
@@ -232,11 +221,11 @@ void GenBankParser::parseFeatures() {
 		//Build the last feature object and quit
 		if (currentLine.find("ORIGIN") != std::string::npos) {
 
-			mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+			feature_content_[foundKeyword].push_back(currentFeatureContent);
 			try {
-				Feature feature = Feature(mFeatureContent_);
-				mFeatures_.push_back(feature);
-				mFeatureContent_.clear();
+				Feature feature = Feature(feature_content_);
+				features_.push_back(feature);
+				feature_content_.clear();
 				return;
 			}
 			catch (const std::invalid_argument& e) {
@@ -256,11 +245,11 @@ void GenBankParser::parseFeatures() {
 				//we need to create a Feature object with all the information available.
 				if ((parsingAFeature == true) && (foundRightKeyword == true)) {
 					//std::cout << "Writing a Feature!\n";
-					mFeatureContent_[foundKeyword].push_back(currentFeatureContent);
+					feature_content_[foundKeyword].push_back(currentFeatureContent);
 					try {
-						Feature feature = Feature(mFeatureContent_);
-						mFeatures_.push_back(feature);
-						mFeatureContent_.clear();
+						Feature feature = Feature(feature_content_);
+						features_.push_back(feature);
+						feature_content_.clear();
 					}
 					catch (const std::invalid_argument& e) {
 						std::cout << e.what();
@@ -318,28 +307,10 @@ void GenBankParser::parseFeatures() {
 	}
 };
 
-std::vector<Feature>& GenBankParser::getFeatures() {
-	return mFeatures_;
+std::vector<Feature>& GenBankParser::GetFeatures() {
+	return features_;
 }
 
-Header& GenBankParser::getHeader() {
-	return mHeader_;
-}
-
-FileState GenBankParser::closeFile() {
-	//When closing a file, we need to reset all members.
-	if (file.is_open()) {
-		mHeaderContent_.clear();
-		mFeatureContent_.clear();
-		mFeatures_.clear();
-		mHeader_.clear();
-
-		file.close();
-		std::cout << "Closed open file.\n";
-		return CLOSED;
-	}
-	else {
-		std::cout << "A file is not currently open.\n";
-		return NOFILEOPEN;
-	}
+Header& GenBankParser::GetHeader() {
+	return header_;
 }
