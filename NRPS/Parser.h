@@ -1,7 +1,9 @@
 #pragma once
 #include "stdafx.h"
+#include "File.h"
 
-class File;
+class Feature;
+class Header;
 
 class Parser {
 protected:
