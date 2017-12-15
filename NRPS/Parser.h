@@ -11,7 +11,7 @@ protected:
 	std::vector<Feature*> features_;
 	Header& header_;
 public:
-	virtual Header& GetHeader();
-	virtual std::vector<Feature*> GetFeatures();
+	virtual Header& GetHeader() = 0;
+	virtual std::vector<Feature*> GetFeatures() = 0;
 	~Parser() = 0;
 }
