@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
+namespace GenBank {
 class Header {
 private:
 	std::map<std::string, std::vector<std::string>> mHeaderContent_;
@@ -13,3 +14,4 @@ public:
 
 	void clear();
 };
+}
