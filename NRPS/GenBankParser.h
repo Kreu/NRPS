@@ -5,7 +5,7 @@
 #include "Feature.h"
 #include "File.h"
 
-class GenBankParser {
+class GenBankParser : public Parser {
 private:
 	std::map<std::string, std::vector<std::string>> header_content_;
 	std::map<std::string, std::vector<std::string>> feature_content_; //Technically doesn't need to be a vector, as I'm only pushing back one string per Feature
