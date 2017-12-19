@@ -2,14 +2,14 @@
 #include "GenBankParser.h"
 #include "Header.h"
 #include "Feature.h"
+#include "GenBankFeature.h"
 
 using KeywordSpacer = int;
 
-GenBankParser::GenBankParser(const std::string& filename) : file_(filename) {
-	if (file_.GetState() == FILESTATE::OPEN) {
-		ParseFeatures();
-		ParseHeader();
-	}
+
+GenBankParser::GenBankParser(const std::string& filename) : Parser(filename) {
+	ParseHeader();
+	ParseFeatures();
 }
 
 void GenBankParser::ParseHeader() {
@@ -83,25 +83,31 @@ void GenBankParser::ParseHeader() {
 	//													"PUBMED",};
 
 
-	std::string currentLine, foundKeyword;
+	std::string current_line, foundKeyword;
 	std::string currentHeaderContent;
 	bool foundHeaderKeyword = false;
 	bool readingAHeader = false;
-	std::fstream& file = file_.GetFile();
+	std::fstream& file = file_.GetStream();
 
-	while (getline(file, currentLine)) {
+	while (getline(file, current_line)) {
 
 		//If we hit "FEATURE", this means we are out of the header and need to stop.
-		if (currentLine.find("FEATURES") != std::string::npos) {
+		if (current_line.find("FEATURES") != std::string::npos) {
 			header_content_[foundKeyword].push_back(currentHeaderContent);
-			header_ = Header(header_content_);
+			header_ = std::make_unique<Header>(Header(header_content_));
+
+			//Set the file stream back to beginning so that it is ready to be used
+			//by other funtions.
+			file.clear();
+			file.seekg(0, std::ios_base::beg);
+
 			return;
 		}
 
 		foundHeaderKeyword = false;
 
 		for (const auto& keywords : HEADER_KEYWORDS) {
-			if (currentLine.find(keywords.first) != std::string::npos) {
+			if (current_line.find(keywords.first) != std::string::npos) {
 				//If we find a header keyword but have already been reading in a header,
 				//we need to append the previous content into the headerContent map.
 				if (readingAHeader == true) {
@@ -113,14 +119,14 @@ void GenBankParser::ParseHeader() {
 
 				readingAHeader = true;
 				foundHeaderKeyword = true;
-				currentHeaderContent = currentLine.substr(keywords.second);
+				currentHeaderContent = current_line.substr(keywords.second);
 			}
 		}
 
 		//Multi-line header comment
 		if ((readingAHeader == true) && (foundHeaderKeyword == false)) {
 			currentHeaderContent.append(STRING_SPACER);
-			currentHeaderContent.append(currentLine.substr(HEADER_KEYWORDS.at(foundKeyword)));
+			currentHeaderContent.append(current_line.substr(HEADER_KEYWORDS.at(foundKeyword)));
 		}
 	}
 };
@@ -208,24 +214,31 @@ void GenBankParser::ParseFeatures() {
 																	{"CDS_motif", 21},
 																	{"aSDomain", 21},
 																	{"CDS", 21} };
-	std::string currentLine, foundKeyword;
+	std::string current_line, foundKeyword;
 	std::string currentFeatureContent;
 	bool foundFeatureKeyword = false;
 	bool foundRightKeyword = false;
 	bool parsingAFeature = false;
-	std::fstream& file = file_.GetFile();
+	std::fstream& file = file_.GetStream();
 
-	while (getline(file, currentLine)) {
+	while (getline(file, current_line)) {
 
 		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
 		//Build the last feature object and quit
-		if (currentLine.find("ORIGIN") != std::string::npos) {
+		if (current_line.find("ORIGIN") != std::string::npos) {
 
 			feature_content_[foundKeyword].push_back(currentFeatureContent);
 			try {
-				Feature feature = Feature(feature_content_);
-				features_.push_back(feature);
+				std::unique_ptr<Feature> p_feature;
+				p_feature = std::make_unique<GenBankFeature>(GenBankFeature(feature_content_));
+				features_.push_back(std::move(p_feature));
 				feature_content_.clear();
+
+				//Set the file stream back to beginning so that it is ready to be used
+				//by other funtions.
+				file.clear();
+				file.seekg(0, std::ios_base::beg);
+
 				return;
 			}
 			catch (const std::invalid_argument& e) {
@@ -239,7 +252,7 @@ void GenBankParser::ParseFeatures() {
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
 			//std::cout << "Processing " << currentLine << "\n";
-			if ((currentLine.find(keywords.first) != std::string::npos) && (currentLine.find(keywords.first) <= 20)) {
+			if ((current_line.find(keywords.first) != std::string::npos) && (current_line.find(keywords.first) <= 20)) {
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
@@ -247,8 +260,9 @@ void GenBankParser::ParseFeatures() {
 					//std::cout << "Writing a Feature!\n";
 					feature_content_[foundKeyword].push_back(currentFeatureContent);
 					try {
-						Feature feature = Feature(feature_content_);
-						features_.push_back(feature);
+						std::unique_ptr<Feature> p_feature;
+						p_feature = std::make_unique<GenBankFeature>(GenBankFeature(feature_content_));
+						features_.push_back(std::move(p_feature));
 						feature_content_.clear();
 					}
 					catch (const std::invalid_argument& e) {
@@ -263,7 +277,7 @@ void GenBankParser::ParseFeatures() {
 				//between these two options
 
 				//Get the substring that actually represents the keyword in a line
-				std::string actualKeyword = currentLine.substr(0, 21);
+				std::string actualKeyword = current_line.substr(0, 21);
 				actualKeyword.erase(std::remove_if(actualKeyword.begin(), actualKeyword.end(), isspace), actualKeyword.end());
 
 				//Need to check the keyword we're comparing against isn't shorter than our unknown, otherwise this operation 
@@ -294,7 +308,7 @@ void GenBankParser::ParseFeatures() {
 				parsingAFeature = true;
 				foundRightKeyword = true;
 				foundFeatureKeyword = true;
-				currentFeatureContent = currentLine.substr(keywords.second);
+				currentFeatureContent = current_line.substr(keywords.second);
 			}
 		}
 
@@ -302,15 +316,15 @@ void GenBankParser::ParseFeatures() {
 		const std::string STRING_SPACER(" ");
 		if ((parsingAFeature == true) && (foundFeatureKeyword == false)) {
 			currentFeatureContent.append(STRING_SPACER);
-			currentFeatureContent.append(currentLine.substr(FEATURE_KEYWORDS.at(foundKeyword)));
+			currentFeatureContent.append(current_line.substr(FEATURE_KEYWORDS.at(foundKeyword)));
 		}
 	}
 };
 
-std::vector<Feature>& GenBankParser::GetFeatures() {
+const std::vector<std::unique_ptr<Feature>>& GenBankParser::GetFeatures() {
 	return features_;
 }
 
-Header& GenBankParser::GetHeader() {
+std::unique_ptr<Header>& GenBankParser::GetHeader() {
 	return header_;
 }

@@ -1,4 +1,8 @@
 ﻿  main.cpp
-  GenBankParser.cpp
   Generating Code...
-  NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\Debug\NRPS.exe
+  Skipping... (no relevant changes detected)
+  Parser.cpp
+  GenBankParser.cpp
+  GenBankFeature.cpp
+  Feature.cpp
+  NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\NRPS\Debug\NRPS.exe

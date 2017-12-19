@@ -4,8 +4,11 @@
 #include "stdafx.h"
 //#include "ParserTests.h"
 //#include "GenBankParserTests.h"
-#include "GenBankParser.h"
 
+#include "GenBankParser.h"
+#include "Header.h"
+#include "Feature.h"
+#include "GenBankFeature.h"
 
 int main()
 {
@@ -15,13 +18,18 @@ int main()
 	//parserTests.testAll();
 	//genbankParserTests.testAll();
 
-	GenBankParser parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
-	Header& header = parser.GetHeader();
-	header.printHeaderContent();
-	std::vector<Feature>& features = parser.GetFeatures();
+	try {
+		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
+		std::unique_ptr<Header>& header = parser.GetHeader();
+		header->PrintHeaderContent();
+		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
-	for (auto c : features) {
-		c.printFeature();
+		for (auto& c : features) {
+			c->PrintFeature();
+		}
+	}
+	catch (std::runtime_error& e) {
+		std::cout << e.what() << "\n";
 	}
 
     return 0;

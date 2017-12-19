@@ -1,0 +1,3 @@
+﻿  ParserTests.cpp
+c:\users\valdeko\source\repos\nrps\nrps\genbankparser.h(6): error C2504: 'Parser': base class undefined
+c:\users\valdeko\source\repos\nrps\unittests\parsertests.cpp(18): error C2440: 'initializing': cannot convert from 'GenBankParser' to 'Parser &'

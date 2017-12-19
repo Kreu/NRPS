@@ -1,9 +1,9 @@
 #pragma once
 
 #include "stdafx.h"
-
-class Header;
-class Feature;
+#include "Parser.h"
+#include "Header.h"
+#include "Feature.h"
 
 class GenBankParser : public Parser {
 private:
@@ -14,8 +14,9 @@ private:
 	void ParseHeader();
 public:
 	GenBankParser(const std::string& filename);
+	virtual ~GenBankParser() = default;
 	
-	Header& GetHeader();
-	std::vector<Feature*>& GetFeatures();
+	std::unique_ptr<Header>& GetHeader();
+	const std::vector<std::unique_ptr<Feature>>& GetFeatures();
 };
 

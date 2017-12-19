@@ -3,13 +3,13 @@
 
 class Header {
 private:
-	std::map<std::string, std::vector<std::string>> mHeaderContent_;
+	std::map<std::string, std::vector<std::string>> content_;
 public:
 	Header() {};
 	explicit Header(const std::map<std::string, std::vector<std::string>>&);
 
-	std::map<std::string, std::vector<std::string>>& getHeaderContent();
-	void printHeaderContent();
+	std::map<std::string, std::vector<std::string>>& GetHeaderContent();
+	void PrintHeaderContent();
 
-	void clear();
+	void Clear();
 };
