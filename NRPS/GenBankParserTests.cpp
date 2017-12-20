@@ -229,6 +229,8 @@ void GenBankParserTests::TestParseFeatures() {
 }
 
 void GenBankParserTests::TestAll() {
-	//TestParseHeader();
+	std::cout << "Testing GenBankParserTests...\n";
+	TestParseHeader();
 	TestParseFeatures();
+	std::cout << "All GenBankParserTests passed!\n";
 }

@@ -26,5 +26,7 @@ void ParserTests::TestFileNotFound() {
 }
 
 void ParserTests::TestAll() {
+	std::cout << "Testing ParserTests...\n";
 	TestFileNotFound();
+	std::cout << "All ParserTests passed!\n";
 }
