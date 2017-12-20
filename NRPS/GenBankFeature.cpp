@@ -11,7 +11,7 @@ GenBankFeature::GenBankFeature(const std::map<std::string, std::vector<std::stri
 	//For example, the following feature:
 	//gene            29559..31544
 	//				  /locus_tag = "MT0111"
-	//would produce a map with the key "gene" and a vector with two strings, "29559..31544" and "/locus_tag = "MT0111"
+	//would produce a map with the key "gene" and a vector with "/locus_tag = "MT0111"
 
 	//Check that the map contains only one key
 	//If it doesn't, the passed map is not correct for Feature construction as no Feature has multiple types

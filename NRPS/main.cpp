@@ -17,7 +17,7 @@
 int main()
 {
 	//Run tests
-	bool TESTS_ENABLED = 1;
+	bool TESTS_ENABLED = 0;
 	if (TESTS_ENABLED) {
 		ParserTests parserTests = ParserTests();
 		parserTests.TestAll();
@@ -27,13 +27,13 @@ int main()
 	}
 
 	try {
-		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureCDS.gbk");
+		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 		std::unique_ptr<Header>& header = parser.GetHeader();
 		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
-		//for (auto& c : features) {
-		//	c->PrintFeature();
-		//}
+		for (auto& c : features) {
+			c->PrintFeature();
+		}
 	}
 	catch (std::runtime_error& e) {
 		std::cout << e.what() << "\n";
