@@ -10,23 +10,30 @@
 #include "Feature.h"
 #include "GenBankFeature.h"
 
+//Include for testing purposes
+#include "ParserTests.h"
+#include "GenBankParserTests.h"
+
 int main()
 {
 	//Run tests
-	//ParserTests parserTests = ParserTests();
-	//GenBankParserTests genbankParserTests = GenBankParserTests();
-	//parserTests.testAll();
-	//genbankParserTests.testAll();
+	bool TESTS_ENABLED = 0;
+	if (TESTS_ENABLED) {
+		ParserTests parserTests = ParserTests();
+		parserTests.TestAll();
+
+		GenBankParserTests genbankParserTests = GenBankParserTests();
+		genbankParserTests.TestAll();
+	}
 
 	try {
-		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
+		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureCDS.gbk");
 		std::unique_ptr<Header>& header = parser.GetHeader();
-		header->PrintHeaderContent();
 		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
-		for (auto& c : features) {
-			c->PrintFeature();
-		}
+		//for (auto& c : features) {
+		//	c->PrintFeature();
+		//}
 	}
 	catch (std::runtime_error& e) {
 		std::cout << e.what() << "\n";

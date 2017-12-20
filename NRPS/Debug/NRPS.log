@@ -1,8 +1,4 @@
-﻿  main.cpp
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  Parser.cpp
-  GenBankParser.cpp
-  GenBankFeature.cpp
-  Feature.cpp
+﻿  GenBankFeature.cpp
+c:\users\valdeko\source\repos\nrps\nrps\genbankfeature.cpp(60): warning C4129: '=': unrecognized character escape sequence
+c:\users\valdeko\source\repos\nrps\nrps\genbankfeature.cpp(61): warning C4129: '=': unrecognized character escape sequence
   NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\NRPS\Debug\NRPS.exe

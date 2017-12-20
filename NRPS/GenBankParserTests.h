@@ -3,8 +3,7 @@
 
 class GenBankParserTests {
 public:
-	void testParseHeader();
-	void testParseFeatures();
-
-	void testAll();
+	void TestParseHeader();
+	void TestParseFeatures();
+	void TestAll();
 };

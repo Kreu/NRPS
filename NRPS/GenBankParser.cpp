@@ -6,7 +6,6 @@
 
 using KeywordSpacer = int;
 
-
 GenBankParser::GenBankParser(const std::string& filename) : Parser(filename) {
 	ParseHeader();
 	ParseFeatures();
@@ -229,6 +228,11 @@ void GenBankParser::ParseFeatures() {
 
 			feature_content_[foundKeyword].push_back(currentFeatureContent);
 			try {
+				//For debug
+				/*for (auto c : feature_content_[foundKeyword]) {
+					std::cout << c << "\n";
+				}*/
+
 				std::unique_ptr<Feature> p_feature;
 				p_feature = std::make_unique<GenBankFeature>(GenBankFeature(feature_content_));
 				features_.push_back(std::move(p_feature));

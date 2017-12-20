@@ -2,6 +2,9 @@
 #include "stdafx.h"
 
 class Feature {
+//For testing purposes
+friend class GenBankParserTests;
+
 protected:
 	std::string type_;
 	std::map<std::string, std::vector<std::string>> content_;

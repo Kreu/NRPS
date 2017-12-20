@@ -57,11 +57,12 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 		//Matches the qualifiers within features, e.g. "/asDomain_id="hmmscan"" becomes "asDomain_id"
 		std::regex feature("(\\/.*?)(?:\\s|$)(?=\\/|$)");
 
-		std::regex qualifierType("(?:\\/)(\\w*)(?=\=\")");
+		std::regex qualifierType("(?:\\/)(\\w*)(?=\=)");
 		std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
 
 		for (const auto& line : k.second) {
 			
+			std::cout << line << "\n";
 			//TO-DO
 			//Actually add the codon location
 			if (std::regex_search(line, matches, codonLocation)) {
@@ -80,11 +81,14 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 
 				if (std::regex_search(matchedString, matches, qualifierType)) {
 					qualifierTypeString = matches.str(1);
+					std::cout << "Found " << qualifierTypeString << "\n";
 					foundFeatureType = true;
 				}
 
 				if (std::regex_search(matchedString, matches, qualifierContent)) {
 					qualifierContentString = matches.str(1);
+
+					std::cout << "Found " << qualifierContentString << "\n";
 					foundFeatureContent = true;
 				}
 
