@@ -2,13 +2,13 @@
 #include "Cluster.h"
 
 Cluster::Cluster(const std::vector<Feature>& features, const Header& header) {
-	Cluster.ConstructHeader(header);
-	Cluster.ConstructFeature(features);
+	ConstructHeader(header);
+	ConstructFeature(features);
 }
 
 Cluster::Cluster(const Feature& feature, const Header& header) {
-	Cluster.ConstructHeader(header);
-	Cluster.ConstructFeature(feature);
+	ConstructHeader(header);
+	ConstructFeature(feature);
 }
 
 void Cluster::ConstructHeader(const Header& header) {

@@ -1,17 +1,18 @@
 #pragma once
 #include "stdafx.h"
 #include "File.h"
-
-class Feature;
-class Header;
+#include "Header.h"
+#include "Feature.h"
 
 class Parser {
 protected:
 	File file_;
-	std::vector<Feature*> features_;
-	Header& header_;
+	std::vector<std::unique_ptr<Feature>> features_;
+	std::unique_ptr<Header> header_;
 public:
-	virtual Header& GetHeader() = 0;
-	virtual std::vector<Feature*> GetFeatures() = 0;
-	~Parser() = 0;
-}
+	Parser(const std::string& filename);
+
+	virtual std::unique_ptr<Header>& GetHeader() = 0;
+	virtual const std::vector<std::unique_ptr<Feature>>& GetFeatures() = 0;
+	virtual ~Parser() = 0;
+};

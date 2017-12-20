@@ -1,15 +1,12 @@
 #pragma once
 #include "stdafx.h"
+#include "Feature.h"
 
 class GenBankFeature : public Feature {
 private:
-	std::string mFeatureType_;
-	std::map<std::string, std::vector<std::string>> mFeatureContent_;
-	int mFeatureStartLocation_;
-	int mFeatureStopLocation_;
-
-	void unpackFeatureContent(const std::map<std::string, std::vector<std::string>>&);
+	void UnpackFeatureContent(const std::map<std::string, std::vector<std::string>>& content);
 public:
-	Feature(const std::map<std::string, std::vector<std::string>>&);
-	void printFeature();
+	GenBankFeature(const std::map<std::string, std::vector<std::string>>& feature_content);
+	~GenBankFeature() = default;
+	void PrintFeature();
 };

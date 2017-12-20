@@ -12,9 +12,11 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <istream>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <regex>
+#include <memory>
 
 // TODO: reference additional headers your program requires here

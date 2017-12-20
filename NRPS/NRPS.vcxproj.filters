@@ -42,6 +42,18 @@
     <ClInclude Include="File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GenBankFeature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GenBankParserTests.h">
+      <Filter>Header Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="ParserTests.h">
+      <Filter>Header Files\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -61,6 +73,18 @@
     </ClCompile>
     <ClCompile Include="File.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenBankFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenBankParserTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserTests.cpp">
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

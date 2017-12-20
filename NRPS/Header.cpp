@@ -2,22 +2,21 @@
 #include "Header.h"
 
 Header::Header(const std::map<std::string, std::vector<std::string>>& content) {
-	mHeaderContent_ = content;
+	content_ = content;
 }
 
-std::map<std::string, std::vector<std::string>>& Header::getHeaderContent() {
-	return mHeaderContent_;
+std::map<std::string, std::vector<std::string>>& Header::GetHeaderContent() {
+	return content_;
 }
 
-void Header::printHeaderContent() {
-	for (auto c : mHeaderContent_) {
+void Header::PrintHeaderContent() {
+	for (auto c : content_) {
 		std::cout << c.first << ": ";
 		for (auto cx : c.second) {
 			std::cout << cx << "\n";
 		}
 	}
-
 }
-void Header::clear() {
-	mHeaderContent_.clear();
+void Header::Clear() {
+	content_.clear();
 }

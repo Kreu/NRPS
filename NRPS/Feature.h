@@ -2,7 +2,17 @@
 #include "stdafx.h"
 
 class Feature {
-private:
+//For testing purposes
+friend class GenBankParserTests;
+
+protected:
+	std::string type_;
+	std::map<std::string, std::vector<std::string>> content_;
+	int start_location;;
+	int stop_location;
 public:
-	~Feature() = 0;
-}
+	Feature() = default;
+	virtual ~Feature() = 0;
+
+	virtual void PrintFeature() = 0;
+};

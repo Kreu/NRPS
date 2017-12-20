@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "Feature.h"
+#include "GenBankFeature.h"
 
-Feature::Feature(const std::map<std::string, std::vector<std::string>>& featureContent) {
+GenBankFeature::GenBankFeature(const std::map<std::string, std::vector<std::string>>& feature_content) {
 	//TO-DO
 	//Write the constructor to unpack the map and populate the fields with appropriate values
 
@@ -11,21 +11,21 @@ Feature::Feature(const std::map<std::string, std::vector<std::string>>& featureC
 	//For example, the following feature:
 	//gene            29559..31544
 	//				  /locus_tag = "MT0111"
-	//would produce a map with the key "gene" and a vector with two strings, "29559..31544" and "/locus_tag = "MT0111"
+	//would produce a map with the key "gene" and a vector with "/locus_tag = "MT0111"
 
 	//Check that the map contains only one key
 	//If it doesn't, the passed map is not correct for Feature construction as no Feature has multiple types
-	if (featureContent.size() != 1) {
+	if (feature_content.size() != 1) {
 		throw std::invalid_argument("Map contains too many keys, cannot construct Feature object");
 	}
 
-	unpackFeatureContent(featureContent);
+	UnpackFeatureContent(feature_content);
 };
 
-void Feature::printFeature() {
-	std::cout << "Type: " << mFeatureType_ << "\n";
-	std::cout << "Location " << mFeatureStartLocation_ << " to " << mFeatureStopLocation_ << "\n";
-	for (const auto& c : mFeatureContent_) {
+void GenBankFeature::PrintFeature() {
+	std::cout << "Type: " << type_ << "\n";
+	std::cout << "Location " << start_location << " to " << stop_location << "\n";
+	for (const auto& c : content_) {
 		std::cout << "Content: " << c.first << "\n";
 		for (auto a : c.second) {
 			if (c.second.size() > 1) {
@@ -39,7 +39,7 @@ void Feature::printFeature() {
 	}
 }
 
-void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::string>>& content) {
+void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vector<std::string>>& content) {
 	//Unpack the map and create a map. The keys are feature types, and the values are strings
 	//For example:
 	//  /asDomain_id = "nrpspksdomains_MT0110_Xdom03"
@@ -49,7 +49,7 @@ void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::
 	//of "nrpspksdomains_MT0110_Xdom03", "nrpspksdomains.hmm" and "hmmscan", respectively. 
 
 	for (const auto& k : content) {
-		mFeatureType_ = k.first;
+		type_ = k.first;
 
 		std::smatch matches;
 		//Matches the sequence location of the features, e.g. "23411..23699"
@@ -57,16 +57,17 @@ void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::
 		//Matches the qualifiers within features, e.g. "/asDomain_id="hmmscan"" becomes "asDomain_id"
 		std::regex feature("(\\/.*?)(?:\\s|$)(?=\\/|$)");
 
-		std::regex qualifierType("(?:\\/)(\\w*)(?=\=\")");
-		std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
+		std::regex qualifierType("(?:\\/)(\\w*)(?=\=)");
+		//std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
+		std::regex qualifierContent("(?:\=)(.*)(?=\"|[ ])");
 
 		for (const auto& line : k.second) {
-			
+
 			//TO-DO
 			//Actually add the codon location
 			if (std::regex_search(line, matches, codonLocation)) {
-				mFeatureStartLocation_ = std::stoi(matches.str(1));
-				mFeatureStopLocation_ = std::stoi(matches.str(2));
+				start_location = std::stoi(matches.str(1));
+				stop_location = std::stoi(matches.str(2));
 			}
 
 			bool foundFeatureContent = false;
@@ -80,11 +81,14 @@ void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::
 
 				if (std::regex_search(matchedString, matches, qualifierType)) {
 					qualifierTypeString = matches.str(1);
+					//std::cout << "Found " << qualifierTypeString << "\n";
 					foundFeatureType = true;
 				}
 
 				if (std::regex_search(matchedString, matches, qualifierContent)) {
 					qualifierContentString = matches.str(1);
+					qualifierContentString.erase(std::remove_if(qualifierContentString.begin(), qualifierContentString.end(), [](char c) { return c == '"'; } ), qualifierContentString.end());
+					//std::cout << "Found " << qualifierContentString << "gg\n";
 					foundFeatureContent = true;
 				}
 
@@ -94,7 +98,7 @@ void Feature::unpackFeatureContent(const std::map<std::string, std::vector<std::
 					if (qualifierTypeString == "translation") {
 						qualifierContentString.erase(remove_if(qualifierContentString.begin(), qualifierContentString.end(), isspace), qualifierContentString.end());
 					}
-					mFeatureContent_[qualifierTypeString].push_back(qualifierContentString);
+					content_[qualifierTypeString].push_back(qualifierContentString);
 				}
 
 			}
