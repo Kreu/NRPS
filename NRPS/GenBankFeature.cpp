@@ -58,11 +58,11 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 		std::regex feature("(\\/.*?)(?:\\s|$)(?=\\/|$)");
 
 		std::regex qualifierType("(?:\\/)(\\w*)(?=\=)");
-		std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
+		//std::regex qualifierContent("(?:\=\")(.*?)(?=\")"); //(?:\=\")(.*?)(?=\") is the non-C++ malarkey version
+		std::regex qualifierContent("(?:\=)(.*)(?=\"|[ ])");
 
 		for (const auto& line : k.second) {
-			
-			std::cout << line << "\n";
+
 			//TO-DO
 			//Actually add the codon location
 			if (std::regex_search(line, matches, codonLocation)) {
@@ -81,14 +81,14 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 
 				if (std::regex_search(matchedString, matches, qualifierType)) {
 					qualifierTypeString = matches.str(1);
-					std::cout << "Found " << qualifierTypeString << "\n";
+					//std::cout << "Found " << qualifierTypeString << "\n";
 					foundFeatureType = true;
 				}
 
 				if (std::regex_search(matchedString, matches, qualifierContent)) {
 					qualifierContentString = matches.str(1);
-
-					std::cout << "Found " << qualifierContentString << "\n";
+					qualifierContentString.erase(std::remove_if(qualifierContentString.begin(), qualifierContentString.end(), [](char c) { return c == '"'; } ), qualifierContentString.end());
+					//std::cout << "Found " << qualifierContentString << "gg\n";
 					foundFeatureContent = true;
 				}
 

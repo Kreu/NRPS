@@ -17,7 +17,7 @@
 int main()
 {
 	//Run tests
-	bool TESTS_ENABLED = 0;
+	bool TESTS_ENABLED = 1;
 	if (TESTS_ENABLED) {
 		ParserTests parserTests = ParserTests();
 		parserTests.TestAll();
