@@ -50,79 +50,42 @@ void GenBankParser::ParseHeader() {
 	//The code loops through the file and finds the keywords. It creates a GenBank 
 	//object that is a wrapper for all of the data contained within.
 
-	const std::string STRING_SPACER(" ");
-	const std::map<std::string, KeywordSpacer> HEADER_KEYWORDS = { {"LOCUS", 12},
-															  	   {"DEFINITION", 12},
-																   {"ACCESSION", 12},
-																   {"VERSION", 12},
-																   {"KEYWORDS", 12},
-																   {"SOURCE", 12},
-																   {"ORGANISM", 12},
-																   {"REFERENCE", 12},
-																   {"AUTHORS", 10},
-																   {"TITLE", 10},
-																   {"JOURNAL", 10},
-																   {"PUBMED", 10} };
+	constexpr int HEADER_KEYWORD_WIDTH = 12;
 
-	//Keep in case I make it back into an array
-	//const std::array<std::string, 12> HEADER_KEYWORDS = {"LOCUS",
-	//													"DEFINITION",
-	//													"ACCESSION",
-	//													"VERSION", 
-	//													"KEYWORDS",
-	//													"SOURCE",
-	//													"ORGANISM",
-	//													"REFERENCE",
-	//													"AUTHORS",
-	//													"TITLE",
-	//													"JOURNAL",
-	//													"PUBMED",};
-
-
-	std::string current_line, foundKeyword;
-	std::string currentHeaderContent;
-	bool foundHeaderKeyword = false;
-	bool readingAHeader = false;
+	std::string current_line, header_keyword;
+	std::map<std::string, std::vector<std::string>> header_content;
 	std::fstream& file = file_.GetStream();
 
 	while (getline(file, current_line)) {
-
+		bool found_header_keyword = false;
+	
 		//If we hit "FEATURE", this means we are out of the header and need to stop.
 		if (current_line.find("FEATURES") != std::string::npos) {
-			header_content_[foundKeyword].push_back(currentHeaderContent);
-			header_ = std::make_unique<Header>(Header(header_content_));
-
-			//Set the file stream back to beginning so that it is ready to be used
-			//by other funtions.
-			file.clear();
-			file.seekg(0, std::ios_base::beg);
-
+			header_ = std::make_unique<Header>(Header(header_content));
+			std::cout << "Hit the end, exiting...\n";
 			return;
 		}
 
-		foundHeaderKeyword = false;
+		//Detect whether the line contains a keyword. The keywords are guaranteed 
+		//to be 12 characters and always at the beginning of a line. Easiest way is
+		//to grab the first 12 characters and see if it's all spaces or not.
+		std::string search_for_keyword = current_line.substr(0, HEADER_KEYWORD_WIDTH);
+		if (search_for_keyword.find_first_not_of(' ') != std::string::npos) {
+			//Set the flag that we found the keyword
+			found_header_keyword = true;
+			header_keyword = current_line.substr(0, HEADER_KEYWORD_WIDTH);
+			header_keyword.erase(std::remove_if(header_keyword.begin(), header_keyword.end(), isspace), header_keyword.end());
 
-		for (const auto& keywords : HEADER_KEYWORDS) {
-			if (current_line.find(keywords.first) != std::string::npos) {
-				//If we find a header keyword but have already been reading in a header,
-				//we need to append the previous content into the headerContent map.
-				if (readingAHeader == true) {
-					header_content_[foundKeyword].push_back(currentHeaderContent);
-				}
-
-				//Keep track of the keyword we found
-				foundKeyword = keywords.first;
-
-				readingAHeader = true;
-				foundHeaderKeyword = true;
-				currentHeaderContent = current_line.substr(keywords.second);
-			}
+			//Start grabbing the line content past the header keyword width
+			std::string line_content{ current_line.substr(HEADER_KEYWORD_WIDTH) };
+			header_content[header_keyword].push_back(line_content);
 		}
 
-		//Multi-line header comment
-		if ((readingAHeader == true) && (foundHeaderKeyword == false)) {
-			currentHeaderContent.append(STRING_SPACER);
-			currentHeaderContent.append(current_line.substr(HEADER_KEYWORDS.at(foundKeyword)));
+		//If we did not find a header keyword, the next line is part of a multiline
+		//comment so we need to append that to the currently tracked header keyword.
+		if (!found_header_keyword) {
+			std::string line_content{ current_line.substr(12) };
+			header_content[header_keyword].push_back(line_content);
 		}
 	}
 };

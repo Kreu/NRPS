@@ -19,6 +19,7 @@
 #include <regex>
 #include <memory>
 #include <chrono>
+#include <array>
 
 #include <experimental/filesystem> // C++-standard header file name  
 #include <filesystem> // Microsoft-specific implementation header file name  

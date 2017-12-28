@@ -33,6 +33,7 @@ int main()
 		try {
 			Parser& parser = GenBankParser(file.path().string());
 			std::unique_ptr<Header>& header = parser.GetHeader();
+			header->PrintHeaderContent();
 			const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
 			for (auto& c : features) {

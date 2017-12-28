@@ -11,9 +11,9 @@ std::map<std::string, std::vector<std::string>>& Header::GetHeaderContent() {
 
 void Header::PrintHeaderContent() {
 	for (auto c : content_) {
-		std::cout << c.first << ": ";
+		std::cout << c.first << "\n";
 		for (auto cx : c.second) {
-			std::cout << cx << "\n";
+			std::cout << "\t" << cx << "\n";
 		}
 	}
 }
