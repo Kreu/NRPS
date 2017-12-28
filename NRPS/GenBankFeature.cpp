@@ -23,10 +23,10 @@ GenBankFeature::GenBankFeature(const std::map<std::string, std::vector<std::stri
 };
 
 void GenBankFeature::PrintFeature() {
-	std::cout << "Type: " << type_ << "\n";
-	std::cout << "Location " << start_location << " to " << stop_location << "\n";
+	std::cout << "[" << type_ << "]\n";
+	std::cout << "\t" << start_location << " to " << stop_location << "\n";
 	for (const auto& c : content_) {
-		std::cout << "Content: " << c.first << "\n";
+		std::cout << "\t" << c.first << ": ";
 		for (auto a : c.second) {
 			if (c.second.size() > 1) {
 				std::cout << a << ", ";

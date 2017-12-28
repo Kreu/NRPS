@@ -1,0 +1,139 @@
+TO-DO
+Actually write this
+
+
+[class GenBankParser]
+GenBankParser::ParseHeader()
+   GenBankParser::ParseHeader takes a GenBank file and reads in lines until it 
+   encounters FEATURES keyword, so in our example it will read it the following:
+
+   LOCUS       AE000516               49384 bp    DNA              UNK 01-JAN-1980
+   DEFINITION  Mycobacterium tuberculosis CDC1551, complete genome.
+   ACCESSION   AE000516
+   VERSION     AE000516.2
+   KEYWORDS    .
+   SOURCE      .
+     ORGANISM  .
+               .
+
+   What it does next it go through line by line and look for keywords such as LOCUS,
+   DEFINITION etc. If it finds a keyword, it appends the content into a map where the
+   keys are the keywords and values are the definitions, so in our case the map would
+   look like this:
+
+   std::map<std::string, std::vector<std::string>>
+   [LOCUS] = "E000516               49384 bp    DNA              UNK 01-JAN-1980"
+   [DEFINITION] = "Mycobacterium tuberculosis CDC1551, complete genome."
+   [ACCESSION] = "AE000516"
+   [VERSION] = "AE000516.2"
+   [KEYWORDS] = "."
+   [SOURCE] = "."
+   [ORGANISM] = ". ."
+
+   It passes this map onto a Header constructor which stores this map as its content_
+   variable.
+
+GenBankParser::ParseFeatures()
+   GenBankParser::ParseFeatures() takes a GenBank file and reads lines starting with
+   FEATURES up until ORIGIN and looks for keywords. Again, in our example it will read
+   in the following:
+
+   aSDomain          28173..28964
+                     /asDomain_id="nrpspksdomains_MT0110_Xdom03"
+                     /database="nrpspksdomains.hmm"
+                     /detection="hmmscan"
+                     /domain="TD"
+                     /evalue="1.30E-85"
+                     /locus_tag="MT0110"
+                     /score="278.1"
+                     /translation="VLLTGATGFLGRYLVLELLRRLDVDGRLICLVRAESDEDARRRLE
+                     KTFDSGDPELLRHFKELAADRLEVVAGDKSEPDLGLDQPMWRRLAETVDLIVDSAAMVN
+                     AFPYHELFGPNVAGTAELIRIALTTKLKPFTYVSTADVGAAIEPSAFTEDADIRVISPT
+                     RTVDGGWAGGYGTSKWAGEVLLREANDLCALPVAVFRCGMILADTSYAGQLNMSDWVTR
+                     MVLSLMATGIAPRSFYEPDSEGNRQRAHFDGLPVTFVAEAIA"
+     gene            29559..31544
+                     /locus_tag="MT0111"
+
+   It finds keywords such as aSDomain or CDS_motif and creates a map where the keys
+   are the keywords and values are ALL the contents that belong under the keywords.
+   In our example the map would be this:
+
+   std::map<std::string, std::vector<std::string>>
+   [aSDomain] = "28173..28964", 
+                "/asDomain_id="nrpspksdomains_MT0110_Xdom03"", 
+                "/database="nrpspksdomains.hmm"",
+                "/detection="hmmscan", /domain="TD""
+                "/evalue="1.30E-85""
+                "/locus_tag="MT0110""
+                "/score="278.1""
+                "/translation="VLLTGATGFLGRYLVLELLRRLDVDGRLICLVRAESDEDARRRLE
+                KTFDSGDPELLRHFKELAADRLEVVAGDKSEPDLGLDQPMWRRLAETVDLIVDSAAMVN
+                AFPYHELFGPNVAGTAELIRIALTTKLKPFTYVSTADVGAAIEPSAFTEDADIRVISPT
+                RTVDGGWAGGYGTSKWAGEVLLREANDLCALPVAVFRCGMILADTSYAGQLNMSDWVTR
+                MVLSLMATGIAPRSFYEPDSEGNRQRAHFDGLPVTFVAEAIA""
+
+   Because the algorithm processes one Feature at a time, it will stop when it encounters "gene",
+   call a Feature constructor with the map, and start over from an empty map, creating this next:
+
+   std::map<std::string, std::vector<std::string>>         
+   [gene] = "29559..31544",
+            "/locus_tag="MT0111""
+
+[class GenBankFeature]
+   This 
+   
+
+
+
+
+
+
+
+
+
+
+LOCUS       AE000516               49384 bp    DNA              UNK 01-JAN-1980
+DEFINITION  Mycobacterium tuberculosis CDC1551, complete genome.
+ACCESSION   AE000516
+VERSION     AE000516.2
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     aSDomain        28173..28964
+                     /asDomain_id="nrpspksdomains_MT0110_Xdom03"
+                     /database="nrpspksdomains.hmm"
+                     /detection="hmmscan"
+                     /domain="TD"
+                     /evalue="1.30E-85"
+                     /locus_tag="MT0110"
+                     /score="278.1"
+                     /translation="VLLTGATGFLGRYLVLELLRRLDVDGRLICLVRAESDEDARRRLE
+                     KTFDSGDPELLRHFKELAADRLEVVAGDKSEPDLGLDQPMWRRLAETVDLIVDSAAMVN
+                     AFPYHELFGPNVAGTAELIRIALTTKLKPFTYVSTADVGAAIEPSAFTEDADIRVISPT
+                     RTVDGGWAGGYGTSKWAGEVLLREANDLCALPVAVFRCGMILADTSYAGQLNMSDWVTR
+                     MVLSLMATGIAPRSFYEPDSEGNRQRAHFDGLPVTFVAEAIA"
+     CDS_motif       29106..29126
+                     /aSTool="pksnrpsmotif"
+                     /asDomain_id="nrpspksmotif_MT0110_0019"
+                     /database="abmotifs"
+                     /detection="hmmscan"
+                     /evalue="6.30E+00"
+                     /label="C4_LCL_164-176"
+                     /locus_tag="MT0110"
+                     /motif="C4_LCL_164-176"
+                     /note="NRPS/PKS Motif: C4_LCL_164-176 (e-value: 6.3,
+                     bit-score: 0.2)"
+                     /score="0.2"
+                     /translation="DFAEWLQ"
+     gene            29559..31544
+                     /locus_tag="MT0111"
+ORIGIN
+        1 aagctttggg cattggccac aatcgggcca caatcgaaag ccgagcaggt ggaaccgaaa
+       61 cgcagtcgcc tcgtcgtatg tgcacccgag ccatcgcacg cgcgggaatt cccggatgtc
+      121 gccgtattct ccggcggccg ggctaacgca tcccaggccg aacggttggc tcgtgccgtg
+      181 ggtcgcgtgt tggccgatcg gggcgtcacc gggggtgctc gggtgcggct gaccatggcg
+      241 aactgcgccg atgggccgac gctggtgcag ataaacctgc aggtaggtga caccccatta
+      301 agggcgcagg ccgccaccgc gggcatcgat gatctgcgac ccgcactgat cagactggat
+//

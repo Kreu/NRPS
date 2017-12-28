@@ -199,15 +199,30 @@ void GenBankParser::ParseFeatures() {
 																	{"gene", 21},
 																	{"CDS_motif", 21},
 																	{"aSDomain", 21},
-																	{"CDS", 21} };
+																	{"CDS", 21},
+																	{"sig_peptide", 21} };
 	std::string current_line, foundKeyword;
 	std::string currentFeatureContent;
 	bool foundFeatureKeyword = false;
 	bool foundRightKeyword = false;
-	bool parsingAFeature = false;
+	bool parsing_a_feature = false;
+	bool in_features_section = false;
 	std::fstream& file = file_.GetStream();
+	
 
 	while (getline(file, current_line)) {
+
+		//Headers can contain keywords such as "gene" in "Ethanoli\GENE\ns"
+		//To avoid parsing error (need to rewrite the parser for this anyway)
+		//Do not deal with any lines until we've hit FEATURES which marks the
+		//start of where we need to read.
+		if (current_line.find("FEATURES") != std::string::npos) {
+			in_features_section = true;
+		}
+
+		if (!in_features_section) {
+			continue;
+		}
 
 		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
 		//Build the last feature object and quit
@@ -238,11 +253,12 @@ void GenBankParser::ParseFeatures() {
 
 		for (const auto& keywords : FEATURE_KEYWORDS) {
 			//std::cout << "Processing " << currentLine << "\n";
+			//20 in the next line is the width of the keyword column before any content starts
 			if ((current_line.find(keywords.first) != std::string::npos) && (current_line.find(keywords.first) <= 20)) {
 
 				//If we find a feature keyword but have already been reading in a feature,
 				//we need to create a Feature object with all the information available.
-				if ((parsingAFeature == true) && (foundRightKeyword == true)) {
+				if ((parsing_a_feature == true) && (foundRightKeyword == true)) {
 					feature_content_[foundKeyword].push_back(currentFeatureContent);
 					try {
 						std::unique_ptr<Feature> p_feature;
@@ -286,7 +302,7 @@ void GenBankParser::ParseFeatures() {
 					}
 				}
 
-				parsingAFeature = true;
+				parsing_a_feature = true;
 				foundRightKeyword = true;
 				foundFeatureKeyword = true;
 				currentFeatureContent = current_line.substr(keywords.second);
@@ -295,7 +311,7 @@ void GenBankParser::ParseFeatures() {
 
 		//Multi-line header comment
 		const std::string STRING_SPACER(" ");
-		if ((parsingAFeature == true) && (foundFeatureKeyword == false)) {
+		if ((parsing_a_feature == true) && (foundFeatureKeyword == false)) {
 			currentFeatureContent.append(STRING_SPACER);
 			currentFeatureContent.append(current_line.substr(FEATURE_KEYWORDS.at(foundKeyword)));
 		}

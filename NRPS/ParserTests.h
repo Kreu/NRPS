@@ -2,6 +2,6 @@
 
 class ParserTests {
 public:
-	void TestFileNotFound();
-	void TestAll();
+	static void TestFileNotFound();
+	static void TestAll();
 };
