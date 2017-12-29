@@ -32,7 +32,8 @@ void GenBankParserTests::TestParseHeader() {
 		assert(srcContent[0] == ".");
 
 		std::vector<std::string> orgContent = expectedHeaderContent["ORGANISM"];
-		assert(orgContent[0] == ". .");
+		assert(orgContent[0] == ".");
+		assert(orgContent[1] == ".");
 	}
 	catch (std::runtime_error& e) {
 		std::cout << e.what();
@@ -63,7 +64,8 @@ void GenBankParserTests::TestParseHeader() {
 		assert(srcContent[0] == "E. coli");
 
 		std::vector<std::string> orgContent = expectedHeaderContent["ORGANISM"];
-		assert(orgContent[0] == "E.coli and Sf9");
+		assert(orgContent[0] == "E.coli");
+		assert(orgContent[1] == "and Sf9");
 	}
 	catch (std::runtime_error& e) {
 		std::cout << e.what();
@@ -111,7 +113,6 @@ void GenBankParserTests::TestParseFeatures() {
 		for (auto& c : features) {
 			//This is what the content_ should be
 			std::map<std::string, std::vector<std::string>> expected_content {
-				//{ "codon_start", std::vector<std::string>{"1"} },
 				{ "asDomain_id", std::vector<std::string>{"nrpspksdomains_MT0110_Xdom03"} },
 				{ "database", std::vector<std::string>{"nrpspksdomains.hmm"} },
 				{ "detection", std::vector<std::string>{"hmmscan"} },

@@ -7,12 +7,12 @@
 
 class GenBankParser : public Parser {
 private:
-	std::map<std::string, std::vector<std::string>> feature_content_;
 	void ParseFeatures();
 	void ParseHeader();
 public:
 	GenBankParser(const std::string& filename);
-	virtual ~GenBankParser() = default;
+	virtual ~GenBankParser() override = default;
+
 	std::unique_ptr<Header>& GetHeader();
 	const std::vector<std::unique_ptr<Feature>>& GetFeatures();
 };

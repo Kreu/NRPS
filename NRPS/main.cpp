@@ -25,7 +25,10 @@ int main()
 		GenBankParserTests::TestAll();
 	}
 
-	std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\TestSequences";
+
+	std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\Desktop\\BGC_downloader\\New_Sequences";
+	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Sequences";
+	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\TestFiles";
 
 	int file_count{ 0 };
 
@@ -33,15 +36,15 @@ int main()
 		try {
 			Parser& parser = GenBankParser(file.path().string());
 			std::unique_ptr<Header>& header = parser.GetHeader();
-			header->PrintHeaderContent();
+			//header->PrintHeaderContent();
 			const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
-			for (auto& c : features) {
-				c->PrintFeature();
-			}
+			//for (auto& c : features) {
+			//	c->PrintFeature();
+			//}
 
-			++file_count;
-			std::cout << "Current filecount " << file_count << "\n";
+			//++file_count;
+			//std::cout << "Current filecount " << file_count << "\n";
 		}
 		catch (std::runtime_error& e) {
 			std::cout << e.what() << "\n";
