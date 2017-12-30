@@ -26,9 +26,9 @@ int main()
 	}
 
 
-	std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\Desktop\\BGC_downloader\\New_Sequences";
+	std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\Desktop\\BGC_downloader\\TestSequences";
 	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Sequences";
-	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\TestFiles";
+	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Tests";
 
 	int file_count{ 0 };
 
@@ -39,9 +39,9 @@ int main()
 			//header->PrintHeaderContent();
 			const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
 
-			//for (auto& c : features) {
-			//	c->PrintFeature();
-			//}
+			for (auto& c : features) {
+				c->PrintFeature();
+			}
 
 			//++file_count;
 			//std::cout << "Current filecount " << file_count << "\n";
