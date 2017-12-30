@@ -77,7 +77,7 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 	for (const auto& k : content) {
 		type_ = k.first;
 
-		size_t qualifier_type_end_pos{ 0 };
+		size_t type_content_delimiter_pos{ 0 };
 		std::string qualifier_content, qualifier_type;
 
 		for (const auto& line : k.second) {
@@ -102,58 +102,39 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 			//If the '/' character is at the first position in the line, it usually
 			//indicates a new qualifier.
 			if ((line.find_first_of('/') != std::string::npos) && (line.find_first_of('/') == 0)) {
-				//If the line does not contain a '=', it is not a real qualifier
-				//and should be discarded.
+				//If the line does not contain a '=', it is not a real qualifier.
 				if (line.find('=') == std::string::npos) {
 					//If we find a line with / and no =, it is part of a multiline
 					//comment that just happens to have / at the beginning, for
 					//example:
 					// /product="alkyl hydroperoxide reductase, F52a subunit, FAD
-					// / NAD(P) - binding"
+					// /NAD(P) - binding"
 					if (multiline_comment) {
-						qualifier_content = line.substr(0, line.size() - 1);
+						qualifier_content = RemoveQuotationMarks(line);
 						content_[qualifier_type].push_back(qualifier_content);
 					}
 					else {
+						//The line is not important. Probably.
 						continue;
 					}
 				}
 
-				//Get the location of the '=' as this is the delimiter for
-				//the qualifier type and qualifier content.
-				qualifier_type_end_pos = line.find_first_of('=');
-
-				//Take off 1 from the end because we don't want the position of
-				//the '='. We also don't want the first ('/') character.
-				qualifier_type = line.substr(1, qualifier_type_end_pos - 1);
+				auto type_and_content = GetTypeAndContent(line);
+				qualifier_type = type_and_content.first;
+				qualifier_content = type_and_content.second;
 
 				//Content of the qualifier between the '"' '"' characters
 				//Check whether the last character is a '"'. If it is not, then
 				//have a multi-line comment.
 				if (line.back() == '"') {
 					multiline_comment = false;
-					//Remove quotes around the string and add to the map.
-					//It's +1 because we don't want the '=' character we just found.
-					qualifier_content = line.substr(qualifier_type_end_pos + 1);
-					if ((qualifier_content.front() == '"') && (qualifier_content.back() == '"')) {
-						//Remove the first and last character, e.g. the quotation marks.
-						qualifier_content = qualifier_content.substr(1, qualifier_content.size() - 2);
-						content_[qualifier_type].push_back(qualifier_content);
-					}
-
+					qualifier_content = RemoveQuotationMarks(qualifier_content);
+					content_[qualifier_type].push_back(qualifier_content);
 				}
 				else {
-					qualifier_content = line.substr(qualifier_type_end_pos + 1);
-					//If there is '"' at the beginning of the string, add a
-					//spacer of 2 characters, otherwise add 1. 
-					if (qualifier_content.front() == '"') {
-						qualifier_content = line.substr(qualifier_type_end_pos + 2);
-					}
-					else {
-						qualifier_content = line.substr(qualifier_type_end_pos + 1);
-					}
-					content_[qualifier_type].push_back(qualifier_content);
 					multiline_comment = true;
+					qualifier_content = RemoveQuotationMarks(qualifier_content);
+					content_[qualifier_type].push_back(qualifier_content);
 					continue;
 				}
 			}
@@ -162,7 +143,7 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 
 				if (line.back() == '"') {
 					//Remove the quotation mark from the end.
-					qualifier_content = line.substr(0, line.size() -  1);
+					qualifier_content = RemoveQuotationMarks(line);
 					content_[qualifier_type].push_back(qualifier_content);
 					multiline_comment = false;
 				}
@@ -174,4 +155,52 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 			}
 		}
 	}
+}
+
+std::string GenBankFeature::RemoveQuotationMarks(const std::string& line) {
+	//Removes quotation marks around a string. Only removes the first and last
+	//quotation mark, it does not touch multiple ones. For example, 
+	//'"This is an example string"' becomes 'This is an example' string, but
+	//'""I have two quotation marks!"' becomes '"I have to quotation marks'.
+
+	std::string modified_string;
+	if ((line.front() == '"') && (line.back() == '"')) {
+		modified_string = line.substr(1, line.size() - 2);
+		return modified_string;
+	}
+
+	if (!(line.front() == '"') && (line.back() == '"')) {
+		modified_string = line.substr(0, line.size() - 1);
+		return modified_string;
+	}
+
+	if ((line.front() == '"') && !(line.back() == '"')) {
+		modified_string = line.substr(1, line.size());
+		return modified_string;
+	}
+	else {
+		return line;
+	}
+}
+
+std::pair<std::string, std::string> GenBankFeature::GetTypeAndContent(const std::string& line) {
+
+	//Takes a Qualifier line such as "/protein_id="BAI29479.1"" and separates 
+	//it into feature type and content as first and second members of the pair. 
+	//In this case first would be "protein_id" and second would be ""BAI29479.1""
+
+	//Get the location of the '=' as this is the delimiter for
+	//the qualifier type and qualifier content.
+	size_t type_content_delimiter_pos{ 0 };
+	type_content_delimiter_pos = line.find_first_of('=');
+
+	//Take off 1 from the end because we don't want the position of
+	//the '='. We also don't want the first ('/') character.
+	std::string qualifier_type = line.substr(1, type_content_delimiter_pos - 1);
+
+	//Content is everything from the '=' character onwards.
+	std::string qualifier_content = line.substr(type_content_delimiter_pos + 1);
+
+	std::pair<std::string, std::string> type_and_content;
+	return type_and_content = std::make_pair(qualifier_type, qualifier_content);
 }

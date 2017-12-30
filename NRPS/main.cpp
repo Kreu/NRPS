@@ -19,37 +19,34 @@ int main()
 	auto t1 = std::chrono::high_resolution_clock::now();
 
 	//Run tests
-	bool TESTS_ENABLED = 0;
+	bool TESTS_ENABLED = 1;
 	if (TESTS_ENABLED) {
 		ParserTests::TestAll();
 		GenBankParserTests::TestAll();
 	}
 
-
 	std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\Desktop\\BGC_downloader\\TestSequences";
 	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Sequences";
 	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Tests";
 
-	int file_count{ 0 };
+	std::vector<std::shared_ptr<Feature>> CDS_features;
 
 	for (auto& file : std::experimental::filesystem::directory_iterator(path)) {
 		try {
 			Parser& parser = GenBankParser(file.path().string());
-			std::unique_ptr<Header>& header = parser.GetHeader();
+			//std::shared_ptr<Header>& header = parser.GetHeader();
 			//header->PrintHeaderContent();
-			const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
-
-			for (auto& c : features) {
-				c->PrintFeature();
-			}
-
-			//++file_count;
-			//std::cout << "Current filecount " << file_count << "\n";
+			CDS_features = parser.GetFeatureByType("CDS");
 		}
 		catch (std::runtime_error& e) {
 			std::cout << e.what() << "\n";
 		}
 	}
+
+	for (const auto& feat : CDS_features) {
+		feat->PrintFeature();
+	}
+
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();

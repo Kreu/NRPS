@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "GenBankParser.h"
 #include "GenBankParserTests.h"
+#include "GenBankFeature.h"
 
 void GenBankParserTests::TestParseHeader() {
 
@@ -10,7 +11,7 @@ void GenBankParserTests::TestParseHeader() {
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile.gbk");
 
-		std::unique_ptr<Header>& header = parser.GetHeader();
+		std::shared_ptr<Header>& header = parser.GetHeader();
 		std::map<std::string, std::vector<std::string>>& expectedHeaderContent = header->GetHeaderContent();
 
 		std::vector<std::string> locusContent = expectedHeaderContent["LOCUS"];
@@ -42,7 +43,7 @@ void GenBankParserTests::TestParseHeader() {
 	//Test a manually edited file with random junk in it
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestGenBankFile2.gbk");
-		std::unique_ptr<Header>& header = parser.GetHeader();
+		std::shared_ptr<Header>& header = parser.GetHeader();
 		std::map<std::string, std::vector<std::string>>& expectedHeaderContent = header->GetHeaderContent();
 
 		std::vector<std::string> locusContent = expectedHeaderContent["LOCUS"];
@@ -81,7 +82,7 @@ void GenBankParserTests::TestParseFeatures() {
 	//Test for "CDS" Feature
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureCDS.gbk");
-		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
+		const std::vector<std::shared_ptr<Feature>>& features = parser.GetAllFeatures();
 
 		for (auto& c : features) {
 			assert(c->type_ == "CDS");
@@ -108,7 +109,7 @@ void GenBankParserTests::TestParseFeatures() {
 	//Test for "aSDomain" Feature
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureAsdomain.gbk");
-		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
+		const std::vector<std::shared_ptr<Feature>>& features = parser.GetAllFeatures();
 
 		for (auto& c : features) {
 			//This is what the content_ should be
@@ -134,7 +135,7 @@ void GenBankParserTests::TestParseFeatures() {
 	//Test for "gene" Feature
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureGene.gbk");
-		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
+		const std::vector<std::shared_ptr<Feature>>& features = parser.GetAllFeatures();
 
 		for (auto& c : features) {
 			//This is what the content_ should be
@@ -153,7 +154,7 @@ void GenBankParserTests::TestParseFeatures() {
 	//Test for "CDS_motif" Feature
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureCDSmotif.gbk");
-		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
+		const std::vector<std::shared_ptr<Feature>>& features = parser.GetAllFeatures();
 
 		for (auto& c : features) {
 
@@ -190,7 +191,7 @@ void GenBankParserTests::TestParseFeatures() {
 	//Test for "cluster" Feature
 	try {
 		Parser& parser = GenBankParser("C:\\Users\\Valdeko\\source\\repos\\NRPS\\Debug\\TestFeatureCluster.gbk");
-		const std::vector<std::unique_ptr<Feature>>& features = parser.GetFeatures();
+		const std::vector<std::shared_ptr<Feature>>& features = parser.GetAllFeatures();
 
 		for (auto& c : features) {
 
@@ -229,9 +230,33 @@ void GenBankParserTests::TestParseFeatures() {
 	}
 }
 
+void GenBankParserTests::TestRemoveQuotationMarks() {
+	std::string double_quotation_marks{ "\"This is a string with double quotation marks!\"" };
+	std::string beginning_quotation_mark{ "\"This is a string with a single quotation mark at the beginning!" };
+	std::string end_quotation_mark{ "This is a string with a single quotation mark at the end!\"" };
+
+	assert(GenBankFeature::RemoveQuotationMarks(double_quotation_marks) == "This is a string with double quotation marks!");
+	assert(GenBankFeature::RemoveQuotationMarks(beginning_quotation_mark) == "This is a string with a single quotation mark at the beginning!");
+	assert(GenBankFeature::RemoveQuotationMarks(end_quotation_mark) == "This is a string with a single quotation mark at the end!");
+}
+
+void GenBankParserTests::TestGetTypeAndContent() {
+
+	auto p = GenBankFeature::GetTypeAndContent("/protein_id=\"BAI29479.1\"");
+	assert(p.first == "protein_id");
+	assert(p.second == "\"BAI29479.1\"");
+
+	p = GenBankFeature::GetTypeAndContent("/type=\"NRPS\"");
+	assert(p.first == "type");
+	assert(p.second == "\"NRPS\"");
+
+}
+
 void GenBankParserTests::TestAll() {
 	std::cout << "Testing GenBankParserTests...\n";
 	TestParseHeader();
 	TestParseFeatures();
+	TestRemoveQuotationMarks();
+	TestGetTypeAndContent();
 	std::cout << "All GenBankParserTests passed!\n";
 }

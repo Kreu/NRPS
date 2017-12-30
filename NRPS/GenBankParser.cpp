@@ -179,9 +179,9 @@ void GenBankParser::ParseFeatures() {
 		if (current_line.find("ORIGIN") != std::string::npos) {
 			feature_content[feature_keyword].push_back(current_feature_content);
 			try {
-				std::unique_ptr<Feature> p_feature;
-				p_feature = std::make_unique<GenBankFeature>(GenBankFeature(feature_content));
-				features_.push_back(std::move(p_feature));
+				std::shared_ptr<Feature> p_feature;
+				p_feature = std::make_shared<GenBankFeature>(GenBankFeature(feature_content));
+				features_.push_back(p_feature);
 				feature_content.clear();
 
 				//Set the file stream back to beginning so that it is ready to be used
@@ -214,9 +214,9 @@ void GenBankParser::ParseFeatures() {
 			//feature, we have to create a new Feature object.
 			if ((parsing_a_feature == true) && (found_feature_keyword == true)) {
 				try {
-					std::unique_ptr<Feature> p_feature;
-					p_feature = std::make_unique<GenBankFeature>(GenBankFeature(feature_content));
-					features_.push_back(std::move(p_feature));
+					std::shared_ptr<Feature> p_feature;
+					p_feature = std::make_shared<GenBankFeature>(GenBankFeature(feature_content));
+					features_.push_back(p_feature);
 					feature_content.clear();
 				}
 				catch (const std::invalid_argument& e) {
@@ -244,10 +244,20 @@ void GenBankParser::ParseFeatures() {
 	}
 };
 
-const std::vector<std::unique_ptr<Feature>>& GenBankParser::GetFeatures() {
+std::vector<std::shared_ptr<Feature>>& GenBankParser::GetAllFeatures() {
 	return features_;
 }
 
-std::unique_ptr<Header>& GenBankParser::GetHeader() {
+std::vector<std::shared_ptr<Feature>> GenBankParser::GetFeatureByType(const std::string& feature_type) {
+	std::vector<std::shared_ptr<Feature>> matching_features;
+	for (const auto& feat : features_) {
+		if (feat->GetType() == feature_type) {
+			matching_features.push_back(feat);
+		}
+	}
+	return matching_features;
+}
+
+std::shared_ptr<Header>& GenBankParser::GetHeader() {
 	return header_;
 }
