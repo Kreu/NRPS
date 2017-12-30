@@ -16,6 +16,5 @@ public:
 	virtual std::vector<std::shared_ptr<Feature>>& GetAllFeatures() = 0;
 	virtual std::vector<std::shared_ptr<Feature>> GetFeatureByType(const std::string& feature_type) = 0;
 
-
 	virtual ~Parser() = 0;
 };

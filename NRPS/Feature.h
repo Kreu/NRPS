@@ -13,8 +13,11 @@ protected:
 public:
 	Feature() = default;
 	virtual ~Feature() = 0;
+	virtual void PrintFeature() = 0;
 
 	const std::string& GetType();
 	const std::map<std::string, std::vector<std::string>>& GetContent();
-	virtual void PrintFeature() = 0;
+	bool Find(const std::string& qualifier) const;
+	bool Find(const std::string& qualifier, const std::string& search_term) const;
+
 };

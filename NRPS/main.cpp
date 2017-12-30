@@ -19,7 +19,7 @@ int main()
 	auto t1 = std::chrono::high_resolution_clock::now();
 
 	//Run tests
-	bool TESTS_ENABLED = 1;
+	const bool TESTS_ENABLED = 0;
 	if (TESTS_ENABLED) {
 		ParserTests::TestAll();
 		GenBankParserTests::TestAll();
@@ -29,24 +29,22 @@ int main()
 	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Sequences";
 	//std::experimental::filesystem::path path = "C:\\Users\\Valdeko\\source\\repos\\NRPS\\Tests";
 
-	std::vector<std::shared_ptr<Feature>> CDS_features;
-
 	for (auto& file : std::experimental::filesystem::directory_iterator(path)) {
 		try {
 			Parser& parser = GenBankParser(file.path().string());
-			//std::shared_ptr<Header>& header = parser.GetHeader();
-			//header->PrintHeaderContent();
-			CDS_features = parser.GetFeatureByType("CDS");
+			std::vector<std::shared_ptr<Feature>> CDS_features = parser.GetFeatureByType("CDS");
+
+			for (const auto& feat : CDS_features) {
+				if (feat->Find("sec_met", "Kind: biosynthetic")) {
+					feat->PrintFeature();
+				}
+			}
+
 		}
 		catch (std::runtime_error& e) {
 			std::cout << e.what() << "\n";
 		}
 	}
-
-	for (const auto& feat : CDS_features) {
-		feat->PrintFeature();
-	}
-
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();

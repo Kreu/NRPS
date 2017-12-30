@@ -9,7 +9,7 @@ File::File(const std::string& filename) {
 	}
 	//Otherwise everything is good
 	else {
-		//std::cout << "Opened " << filename << ".\n";
+		std::cout << "Opened " << filename << ".\n";
 	}
 }
 
@@ -21,7 +21,7 @@ File::File(const char* filename) {
 	}
 	//Otherwise everything is good
 	else {
-		//std::cout << "Opened " << filename << ".\n";
+		std::cout << "Opened " << filename << ".\n";
 	}
 }
 
