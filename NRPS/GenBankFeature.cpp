@@ -52,11 +52,6 @@ void GenBankFeature::PrintFeature() {
 }
 
 void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vector<std::string>>& content) {
-	//TO-DO
-	//At some point, write a new function that removes '"' characters from
-	//the lines. Current method works but is verging on using magic numbers.
-	
-	
 	//Unpack the map and create a map. The keys are feature types, and the values are strings
 	//For example:
 	//  asDomain_id = "nrpspksdomains_MT0110_Xdom03"

@@ -34,3 +34,9 @@ bool Feature::Find(const std::string& qualifier, const std::string& search_term)
 	}
 	return false;
 }
+
+const std::vector<std::string>& Feature::GetQualifierContent(const std::string& qualifier) {
+	if (content_.find(qualifier) != content_.end()) {
+		return content_.at(qualifier);
+	}
+}

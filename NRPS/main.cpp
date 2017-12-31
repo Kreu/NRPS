@@ -32,13 +32,33 @@ int main()
 	for (auto& file : std::experimental::filesystem::directory_iterator(path)) {
 		try {
 			Parser& parser = GenBankParser(file.path().string());
+			std::vector<std::shared_ptr<Feature>> modules, domains;
 			std::vector<std::shared_ptr<Feature>> CDS_features = parser.GetFeatureByType("CDS");
 
+			//Find all 'modules' which are CDS features that have been marked biosynthetic
 			for (const auto& feat : CDS_features) {
 				if (feat->Find("sec_met", "Kind: biosynthetic")) {
-					feat->PrintFeature();
+					modules.push_back(std::move(feat));
 				}
 			}
+			//Find all 'domains' which are aSDomain features.
+			std::vector<std::shared_ptr<Feature>> aSDomains = parser.GetFeatureByType("aSDomain");
+			for (const auto& feat : aSDomains) {
+				domains.push_back(std::move(feat));
+			}
+
+			for (const auto& feat : modules) {
+				auto tag_content = feat->GetQualifierContent("locus_tag");
+
+			}
+			//for (const auto& feat : modules) {
+			//	auto tag_content = feat->GetQualifierContent("locus_tag");
+			//	for (const auto& tag : tag_content) {
+			//		domains.push_back(std::move(feat));
+			//	}
+			//}
+
+
 
 		}
 		catch (std::runtime_error& e) {

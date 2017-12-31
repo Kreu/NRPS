@@ -155,6 +155,7 @@
     <ClInclude Include="GenBankParser.h" />
     <ClInclude Include="GenBankParserTests.h" />
     <ClInclude Include="Header.h" />
+    <ClInclude Include="Domain.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ParserTests.h" />
     <ClInclude Include="stdafx.h" />
@@ -168,6 +169,7 @@
     <ClCompile Include="GenBankParserTests.cpp" />
     <ClCompile Include="Header.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Domain.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="ParserTests.cpp" />
     <ClCompile Include="stdafx.cpp">
