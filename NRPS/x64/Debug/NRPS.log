@@ -1,4 +1,11 @@
 ﻿  main.cpp
   GenBankParser.cpp
+  GenBankFeature.cpp
+  Feature.cpp
+  Generating Code...
+  Compiling...
+  ParserTests.cpp
+  Parser.cpp
+  GenBankParserTests.cpp
   Generating Code...
   NRPS.vcxproj -> C:\Users\Valdeko\source\repos\NRPS\x64\Debug\NRPS.exe

@@ -177,7 +177,7 @@ void GenBankParser::ParseFeatures() {
 		//If we hit "ORIGIN", this means we are out of the feature and need to stop.
 		//Build the last Feature object and quit
 		if (current_line.find("ORIGIN") != std::string::npos) {
-			feature_content[feature_keyword].push_back(current_feature_content);
+			//feature_content[feature_keyword].push_back(current_feature_content);
 			try {
 				std::shared_ptr<Feature> p_feature;
 				p_feature = std::make_shared<GenBankFeature>(GenBankFeature(feature_content));
@@ -260,4 +260,61 @@ std::vector<std::shared_ptr<Feature>> GenBankParser::GetFeatureByType(const std:
 
 std::shared_ptr<Header>& GenBankParser::GetHeader() {
 	return header_;
+}
+
+Parser::LinkerMap GenBankParser::FindInterdomainLinkers (FeatureMap& domains, FeatureMap& modules, int add_to_begin, int add_to_end) {
+
+	//TO-DO
+	//Implement add_to_begin and add_to_end to get longer linkers that "eat"
+	//into the domains.
+
+	std::map<std::string, std::vector<std::string>> linkers;
+
+	for (const auto& m : modules) {
+		const auto& m_tag = m->GetQualifierContent("locus_tag");
+		const auto& m_trans = m->GetQualifierContent("translation");
+
+		//Iterate through the domains and find the starting positions and
+		//lenghts of these domains in each module.
+		std::vector<std::tuple<size_t, size_t, std::string>> domain_location_length_type;
+		std::string domain_type;
+
+		for (const auto& d : domains) {
+			domain_type = d->GetQualifierContent("domain");
+			const auto& d_tag = d->GetQualifierContent("locus_tag");
+			if (m_tag == d_tag) {
+				const auto&  d_trans = d->GetQualifierContent("translation");
+				std::size_t domain_start_pos = m_trans.find(d_trans);
+				if (domain_start_pos != std::string::npos) {
+					auto domain_pos_and_len = std::make_tuple(domain_start_pos, d_trans.length(), domain_type);
+					domain_location_length_type.push_back(std::move(domain_pos_and_len));
+				}
+			}
+		}
+		//Sort the vector based on the first element (location)
+		//They should already be sorted but just in case they are not...
+		std::sort(domain_location_length_type.begin(), domain_location_length_type.end());
+
+		//Have all the domain locations, now find the linkers
+		for (auto it = domain_location_length_type.begin(); it != domain_location_length_type.end(); ++it) {
+			auto next_element = it + 1;
+			std::size_t current_domain_end = std::get<0>(*it) + std::get<1>(*it);
+			if (next_element != domain_location_length_type.end()) {
+				std::size_t next_domain_start = std::get<0>(*next_element);
+				std::size_t linker_distance = next_domain_start - current_domain_end;
+
+				auto current_domain_type = std::get<2>(*it);
+				auto next_domain_type = std::get<2>(*next_element);
+				std::string linker_type = current_domain_type + "-" + next_domain_type;
+				//std::cout << "current domain_type: " << std::get<2>(*it) << "\n";
+				//std::cout << "next domain_type: " << std::get<2>(*next_element) << "\n";
+
+				linkers[linker_type].push_back(m_trans.substr(current_domain_end, linker_distance));
+				//std::cout << "Current end: " << current_domain_end << ". Next start: " << next_domain_start << ". Linker length: " << linker_distance << "\n";
+				//std::cout << "Tag: " << m_tag << ". Interdomain linker is " << m_trans.substr(current_domain_end, linker_distance) << "\n";
+				continue;
+			}
+		}
+	}
+	return linkers;
 }

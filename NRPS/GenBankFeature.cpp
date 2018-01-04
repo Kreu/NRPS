@@ -18,18 +18,15 @@ GenBankFeature::GenBankFeature(const std::map<std::string, std::vector<std::stri
 	else {
 		UnpackFeatureContent(feature_content);
 		FixTranslationField();
+		RemoveSpacesFromEnd();
 	}
-};
+}
 
 void GenBankFeature::FixTranslationField() {
-	//This is required because the translation field should be one long string rather than multiple single strings.
+	//This is required because the translation field should be one long string
+	//without spaces, which is how the algorithm parses the file initially.
 	if (content_.find("translation") != content_.end()) {
-		std::string fixed_string;
-		for (auto& content : this->content_["translation"]) {
-			fixed_string = fixed_string + content;
-		}
-		this->content_["translation"].clear();
-		this->content_["translation"].push_back(fixed_string);
+		content_["translation"].erase(std::remove_if(content_["translation"].begin(), content_["translation"].end(), isspace), content_["translation"].end());
 	}
 }
 
@@ -38,16 +35,7 @@ void GenBankFeature::PrintFeature() {
 	std::cout << "\t" << start_location << " to " << stop_location << "\n";
 	for (const auto& c : content_) {
 		std::cout << "\t" << c.first << ": ";
-		for (auto a : c.second) {
-			if (c.second.size() > 1) {
-				std::cout << "\t" << a << "\n";
-			}
-			else {
-				std::cout << a << "\n";
-				break;
-			}
-		}
-		
+		std::cout << "\t" << c.second << "\n";		
 	}
 }
 
@@ -59,7 +47,7 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 	//	detection = "hmmscan"
 	//Would create a map with three keys "asDomain_id", "database" and "detection" with values
 	//of "nrpspksdomains_MT0110_Xdom03", "nrpspksdomains.hmm" and "hmmscan", respectively. 
-	
+
 	std::smatch matches;
 	//Matches the sequence location of the features, e.g. "23411..23699".
 	//Doesn't take into account if the location is complement or something
@@ -67,16 +55,15 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 	std::regex codon_location("(\\d+)\\.{2}(\\d+)");
 
 	bool feature_location_found = false;
-	bool multiline_comment = false;
 
 	for (const auto& k : content) {
 		type_ = k.first;
 
 		size_t type_content_delimiter_pos{ 0 };
 		std::string qualifier_content, qualifier_type;
+		std::string STRING_SPACER{ " " };
 
 		for (const auto& line : k.second) {
-
 			//If the line starts with a '/', it is a qualifier. Therefore I need to extract
 			//the qualifier type and the content to finish constructing a Feature.
 			//For example, in the following qualifier 
@@ -96,7 +83,7 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 
 			//If the '/' character is at the first position in the line, it usually
 			//indicates a new qualifier.
-			if ((line.find_first_of('/') != std::string::npos) && (line.find_first_of('/') == 0)) {
+			if (line.find_first_of('/') == 0) {
 				//If the line does not contain a '=', it is not a real qualifier.
 				if (line.find('=') == std::string::npos) {
 					//If we find a line with / and no =, it is part of a multiline
@@ -104,48 +91,22 @@ void GenBankFeature::UnpackFeatureContent(const std::map<std::string, std::vecto
 					//example:
 					// /product="alkyl hydroperoxide reductase, F52a subunit, FAD
 					// /NAD(P) - binding"
-					if (multiline_comment) {
-						qualifier_content = RemoveQuotationMarks(line);
-						content_[qualifier_type].push_back(qualifier_content);
-					}
-					else {
-						//The line is not important. Probably.
-						continue;
-					}
+					qualifier_content = RemoveQuotationMarks(line);
+					content_[qualifier_type] = content_[qualifier_type] + qualifier_content;
 				}
 
 				auto type_and_content = GetTypeAndContent(line);
 				qualifier_type = type_and_content.first;
 				qualifier_content = type_and_content.second;
-
-				//Content of the qualifier between the '"' '"' characters
-				//Check whether the last character is a '"'. If it is not, then
-				//have a multi-line comment.
-				if (line.back() == '"') {
-					multiline_comment = false;
-					qualifier_content = RemoveQuotationMarks(qualifier_content);
-					content_[qualifier_type].push_back(qualifier_content);
-				}
-				else {
-					multiline_comment = true;
-					qualifier_content = RemoveQuotationMarks(qualifier_content);
-					content_[qualifier_type].push_back(qualifier_content);
-					continue;
-				}
+				qualifier_content = RemoveQuotationMarks(qualifier_content);
+				content_[qualifier_type] = content_[qualifier_type] + qualifier_content + STRING_SPACER;
 			}
-
-			if (multiline_comment) {
-
-				if (line.back() == '"') {
-					//Remove the quotation mark from the end.
+			else {
+				//Needed to deal with the first line that has no qualifier_type
+				//but has to be appended as location.
+				if (!qualifier_type.empty()) {
 					qualifier_content = RemoveQuotationMarks(line);
-					content_[qualifier_type].push_back(qualifier_content);
-					multiline_comment = false;
-				}
-				//If line doesn't end with '"', there is more to come!
-				else {
-					qualifier_content = line;
-					content_[qualifier_type].push_back(qualifier_content);
+					content_[qualifier_type] = content_[qualifier_type] + qualifier_content + STRING_SPACER;
 				}
 			}
 		}
@@ -198,4 +159,16 @@ std::pair<std::string, std::string> GenBankFeature::GetTypeAndContent(const std:
 
 	std::pair<std::string, std::string> type_and_content;
 	return type_and_content = std::make_pair(qualifier_type, qualifier_content);
+}
+
+void GenBankFeature::ReverseSpaceTrim(std::string& s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](char ch) {
+		return !isspace(ch);
+	}).base(), s.end());
+}
+
+void GenBankFeature::RemoveSpacesFromEnd() {
+	for (auto& c : content_) {
+		ReverseSpaceTrim(c.second);
+	}
 }

@@ -88,15 +88,15 @@ void GenBankParserTests::TestParseFeatures() {
 			assert(c->type_ == "CDS");
 
 			//This is what the content_ should be
-			std::map<std::string, std::vector<std::string>> expected_content {
-				{ "codon_start", std::vector<std::string>{"1"} },
-				{ "db_xref", std::vector<std::string>{"GI:13879158"} },
-				{ "locus_tag", std::vector<std::string>{"MT0111"} },
-				{ "note", std::vector<std::string>{"identified by similarity to EGAD:32940"} },
-				{ "product", std::vector<std::string>{"conserved hypothetical protein"} },
-				{ "protein_id", std::vector<std::string>{"AAK44333.1"} },
-				{ "transl_table", std::vector<std::string>{"11"} },
-				{ "translation", std::vector<std::string>{"MGTHGATKSATSAVPTPRSNSMAMVRLAIGLLGVCAVVAAFGLVSGARRYAEAGNPYPGAFVSVAEPVGFFAASLAGALCLGALIHVVMTAKPEPDGLIDAAAFRIHLLAERVSGLWLGLAATMVVIQAAHDTGVGPARLLASGALSDSVAASEMARGWIVAAICALVVATALRLYTRWLGHVVLLVPTVLAVVATAVTGNPGQGPDHDYATSAAIVFAVAFATLTGLKIAAALAGTTPSRAVLVTQVTCGALALAYGAMLLYLFIPGWAVDSDFARLGLLAGVILTSVWLFDCWRLLVRPPHAGRRRGGGSGAALAMMAAMASIAAMAVMTAPRFLTHAFTAWDVFLGYELPQPPTIARVLTVWRFDSLIGAAGVVLAIGYAAGFAALRRRGNSWPVGRLIAWLTGCAALVFTSGSGVRAYGSAMFSVHMAEHMTLNMFIPVLLVLGGPVTLALRVLPVTGDGRPPGAREWLTWLLHSRVTTFLSHPITAFVLFVASPYIVYFTPLFDTFVRYHWGHEFMAIHFLVVGYLFYWAIIGIDPGPRRLPYPGRIGLLFAVMPFHAFFGIALMTMSSTVGATFYRSVNLPWLSSIIADQHLGGGIAWSLTELPVIMVIVALVTQWARQDRRVASREDRHADSDYADDELEAYNAMLRELSRMRR"} }
+			std::map<std::string, std::string> expected_content {
+				{ "codon_start", "1" },
+				{ "db_xref", "GI:13879158" },
+				{ "locus_tag", "MT0111" },
+				{ "note", "identified by similarity to EGAD:32940" },
+				{ "product", "conserved hypothetical protein" },
+				{ "protein_id", "AAK44333.1" },
+				{ "transl_table", "11" },
+				{ "translation", "MGTHGATKSATSAVPTPRSNSMAMVRLAIGLLGVCAVVAAFGLVSGARRYAEAGNPYPGAFVSVAEPVGFFAASLAGALCLGALIHVVMTAKPEPDGLIDAAAFRIHLLAERVSGLWLGLAATMVVIQAAHDTGVGPARLLASGALSDSVAASEMARGWIVAAICALVVATALRLYTRWLGHVVLLVPTVLAVVATAVTGNPGQGPDHDYATSAAIVFAVAFATLTGLKIAAALAGTTPSRAVLVTQVTCGALALAYGAMLLYLFIPGWAVDSDFARLGLLAGVILTSVWLFDCWRLLVRPPHAGRRRGGGSGAALAMMAAMASIAAMAVMTAPRFLTHAFTAWDVFLGYELPQPPTIARVLTVWRFDSLIGAAGVVLAIGYAAGFAALRRRGNSWPVGRLIAWLTGCAALVFTSGSGVRAYGSAMFSVHMAEHMTLNMFIPVLLVLGGPVTLALRVLPVTGDGRPPGAREWLTWLLHSRVTTFLSHPITAFVLFVASPYIVYFTPLFDTFVRYHWGHEFMAIHFLVVGYLFYWAIIGIDPGPRRLPYPGRIGLLFAVMPFHAFFGIALMTMSSTVGATFYRSVNLPWLSSIIADQHLGGGIAWSLTELPVIMVIVALVTQWARQDRRVASREDRHADSDYADDELEAYNAMLRELSRMRR"}
 			};
 
 			assert(c->content_ == expected_content);
@@ -113,15 +113,15 @@ void GenBankParserTests::TestParseFeatures() {
 
 		for (auto& c : features) {
 			//This is what the content_ should be
-			std::map<std::string, std::vector<std::string>> expected_content {
-				{ "asDomain_id", std::vector<std::string>{"nrpspksdomains_MT0110_Xdom03"} },
-				{ "database", std::vector<std::string>{"nrpspksdomains.hmm"} },
-				{ "detection", std::vector<std::string>{"hmmscan"} },
-				{ "domain", std::vector<std::string>{"TD"} },
-				{ "evalue", std::vector<std::string>{"1.30E-85"} },
-				{ "locus_tag", std::vector<std::string>{"MT0110"} },
-				{ "score", std::vector<std::string>{"278.1"} },
-				{ "translation", std::vector<std::string>{"VLLTGATGFLGRYLVLELLRRLDVDGRLICLVRAESDEDARRRLEKTFDSGDPELLRHFKELAADRLEVVAGDKSEPDLGLDQPMWRRLAETVDLIVDSAAMVNAFPYHELFGPNVAGTAELIRIALTTKLKPFTYVSTADVGAAIEPSAFTEDADIRVISPTRTVDGGWAGGYGTSKWAGEVLLREANDLCALPVAVFRCGMILADTSYAGQLNMSDWVTRMVLSLMATGIAPRSFYEPDSEGNRQRAHFDGLPVTFVAEAIA"} }
+			std::map<std::string, std::string> expected_content {
+				{ "asDomain_id", "nrpspksdomains_MT0110_Xdom03" },
+				{ "database", "nrpspksdomains.hmm" },
+				{ "detection", "hmmscan" },
+				{ "domain", "TD" },
+				{ "evalue", "1.30E-85" },
+				{ "locus_tag", "MT0110" },
+				{ "score", "278.1" },
+				{ "translation", "VLLTGATGFLGRYLVLELLRRLDVDGRLICLVRAESDEDARRRLEKTFDSGDPELLRHFKELAADRLEVVAGDKSEPDLGLDQPMWRRLAETVDLIVDSAAMVNAFPYHELFGPNVAGTAELIRIALTTKLKPFTYVSTADVGAAIEPSAFTEDADIRVISPTRTVDGGWAGGYGTSKWAGEVLLREANDLCALPVAVFRCGMILADTSYAGQLNMSDWVTRMVLSLMATGIAPRSFYEPDSEGNRQRAHFDGLPVTFVAEAIA" }
 			};
 
 			assert(c->type_ == "aSDomain");
@@ -139,8 +139,8 @@ void GenBankParserTests::TestParseFeatures() {
 
 		for (auto& c : features) {
 			//This is what the content_ should be
-			std::map<std::string, std::vector<std::string>> expected_content {
-				{ "locus_tag", std::vector<std::string>{"MT0111"} },
+			std::map<std::string, std::string> expected_content {
+				{ "locus_tag", "MT0111" },
 			};
 
 			assert(c->type_ == "gene");
@@ -158,26 +158,19 @@ void GenBankParserTests::TestParseFeatures() {
 
 		for (auto& c : features) {
 
-			//For debug
-			//for (auto x : c->content_) {
-			//	for (auto g : x.second) {
-			//		std::cout << g << "!!!\n";
-			//	}
-			//}
-
 			//This is what the content_ should be
-			std::map<std::string, std::vector<std::string>> expected_content {
-				{ "aSTool", std::vector<std::string>{"pksnrpsmotif"} },
-				{ "asDomain_id", std::vector<std::string>{"nrpspksmotif_MT0110_0019"} },
-				{ "database", std::vector<std::string>{"abmotifs"} },
-				{ "detection", std::vector<std::string>{"hmmscan"} },
-				{ "evalue", std::vector<std::string>{"6.30E+00"} },
-				{ "label", std::vector<std::string>{"C4_LCL_164-176"} },
-				{ "locus_tag", std::vector<std::string>{"MT0110"} },
-				{ "motif", std::vector<std::string>{"C4_LCL_164-176"} },
-				{ "note", std::vector<std::string>{"NRPS/PKS Motif: C4_LCL_164-176 (e-value: 6.3,", "bit-score: 0.2)"} },
-				{ "score", std::vector<std::string>{"0.2"} },
-				{ "translation", std::vector<std::string>{"DFAEWLQ"} },
+			std::map<std::string, std::string> expected_content {
+				{ "aSTool", "pksnrpsmotif" },
+				{ "asDomain_id", "nrpspksmotif_MT0110_0019" },
+				{ "database", "abmotifs" },
+				{ "detection", "hmmscan" },
+				{ "evalue", "6.30E+00" },
+				{ "label", "C4_LCL_164-176" },
+				{ "locus_tag", "MT0110" },
+				{ "motif", "C4_LCL_164-176" },
+				{ "note", "NRPS/PKS Motif: C4_LCL_164-176 (e-value: 6.3, bit-score: 0.2)" },
+				{ "score", "0.2" },
+				{ "translation", "DFAEWLQ" }
 			};
 
 			assert(c->type_ == "CDS_motif");
@@ -195,30 +188,21 @@ void GenBankParserTests::TestParseFeatures() {
 
 		for (auto& c : features) {
 
-			//For debug
-			//for (auto x : c->content_) {
-			//	for (auto g : x.second) {
-			//		std::cout << g << "!!!\n";
-			//	}
-			//}
-
 			//This is what the content_ should be
-			std::map<std::string, std::vector<std::string>> expected_content{
-				{ "clusterblast", std::vector<std::string>{"2. JKYW01000001_c1	Mycobacterium", "tuberculosis MAL020157 adOYz-supercont1.1.C1... (93% of", "genes show similarity)", 
-														"3. JKGQ01000001_c1	Mycobacterium", "tuberculosis BTB06-001 adOWX-supercont1.1.C1... (93% of", "genes show similarity)",
-														"4. JKFG01000001_c1	Mycobacterium", "tuberculosis BTB08-283 adTxx-supercont1.1.C1... (93% of", "genes show similarity)",
-														"5. JJSH01000013_c1	Mycobacterium", "tuberculosis NRITLD20 adPad-supercont1.11.C1... (93% of", "genes show similarity)",
-														"6. CP002992_c1	Mycobacterium tuberculosis", "CTRI-2, complete genome. (93% of genes show similarity)",
-														"7. JKFP01000001_c1	Mycobacterium", "tuberculosis BTB08-001 adTxi-supercont1.1.C1... (93% of", "genes show similarity)",
-														"8. JKUF01000001_c1	Mycobacterium", "tuberculosis TB_RSA87 adOVU-supercont1.1.C1,... (93% of", "genes show similarity)",
-														"9. JKUE01000001_c1	Mycobacterium", "tuberculosis TB_RSA88 adOVy-supercont1.1.C1,... (93% of", "genes show similarity)",
-														"10. JKTG01000053_c1	Mycobacterium", "tuberculosis TB_RSA113 adOVe-supercont1.7.C... (93% of", "genes show similarity)",
-														"11. JKSG01000017_c1	Mycobacterium", "tuberculosis TB_RSA141 adPeA-supercont1.5.C... (93% of", "genes show similarity)" } },
-				{ "note", std::vector<std::string>{"Cluster number: 1",
-												"Detection rule(s) for this cluster type: nrps:", "((Condensation & AMP-binding) or (Condensation & A-OX) or", "cluster(Condensation,AMP-binding));",
-												"Monomers prediction: (nrp) + (lys-phe)",
-												"Structure image: structures/genecluster1.png"} },
-				{ "product", std::vector<std::string>{"nrps"} },
+			std::map<std::string, std::string> expected_content{
+				{ "clusterblast", "2. JKYW01000001_c1	Mycobacterium tuberculosis MAL020157 adOYz-supercont1.1.C1... (93% of genes show similarity) "
+														"3. JKGQ01000001_c1	Mycobacterium tuberculosis BTB06-001 adOWX-supercont1.1.C1... (93% of genes show similarity) "
+														"4. JKFG01000001_c1	Mycobacterium tuberculosis BTB08-283 adTxx-supercont1.1.C1... (93% of genes show similarity) "
+														"5. JJSH01000013_c1	Mycobacterium tuberculosis NRITLD20 adPad-supercont1.11.C1... (93% of genes show similarity) "
+														"6. CP002992_c1	Mycobacterium tuberculosis CTRI-2, complete genome. (93% of genes show similarity) "
+														"7. JKFP01000001_c1	Mycobacterium tuberculosis BTB08-001 adTxi-supercont1.1.C1... (93% of genes show similarity) "
+														"8. JKUF01000001_c1	Mycobacterium tuberculosis TB_RSA87 adOVU-supercont1.1.C1,... (93% of genes show similarity) "
+														"9. JKUE01000001_c1	Mycobacterium tuberculosis TB_RSA88 adOVy-supercont1.1.C1,... (93% of genes show similarity) "
+														"10. JKTG01000053_c1	Mycobacterium tuberculosis TB_RSA113 adOVe-supercont1.7.C... (93% of genes show similarity) "
+														"11. JKSG01000017_c1	Mycobacterium tuberculosis TB_RSA141 adPeA-supercont1.5.C... (93% of genes show similarity)" },
+				{ "note", "Cluster number: 1 Detection rule(s) for this cluster type: nrps: ((Condensation & AMP-binding) or (Condensation & A-OX) or cluster(Condensation,AMP-binding)); "
+												"Monomers prediction: (nrp) + (lys-phe) Structure image: structures/genecluster1.png" },
+				{ "product", "nrps" }
 			};
 
 			assert(c->type_ == "cluster");
@@ -229,34 +213,32 @@ void GenBankParserTests::TestParseFeatures() {
 		std::cout << e.what();
 	}
 }
-
-void GenBankParserTests::TestRemoveQuotationMarks() {
-	std::string double_quotation_marks{ "\"This is a string with double quotation marks!\"" };
-	std::string beginning_quotation_mark{ "\"This is a string with a single quotation mark at the beginning!" };
-	std::string end_quotation_mark{ "This is a string with a single quotation mark at the end!\"" };
-
-	assert(GenBankFeature::RemoveQuotationMarks(double_quotation_marks) == "This is a string with double quotation marks!");
-	assert(GenBankFeature::RemoveQuotationMarks(beginning_quotation_mark) == "This is a string with a single quotation mark at the beginning!");
-	assert(GenBankFeature::RemoveQuotationMarks(end_quotation_mark) == "This is a string with a single quotation mark at the end!");
-}
-
-void GenBankParserTests::TestGetTypeAndContent() {
-
-	auto p = GenBankFeature::GetTypeAndContent("/protein_id=\"BAI29479.1\"");
-	assert(p.first == "protein_id");
-	assert(p.second == "\"BAI29479.1\"");
-
-	p = GenBankFeature::GetTypeAndContent("/type=\"NRPS\"");
-	assert(p.first == "type");
-	assert(p.second == "\"NRPS\"");
-
-}
+//They actually belong with GenBankFeature
+//void GenBankParserTests::TestRemoveQuotationMarks() {
+//	std::string double_quotation_marks{ "\"This is a string with double quotation marks!\"" };
+//	std::string beginning_quotation_mark{ "\"This is a string with a single quotation mark at the beginning!" };
+//	std::string end_quotation_mark{ "This is a string with a single quotation mark at the end!\"" };
+//
+//	assert(GenBankFeature::RemoveQuotationMarks(double_quotation_marks) == "This is a string with double quotation marks!");
+//	assert(GenBankFeature::RemoveQuotationMarks(beginning_quotation_mark) == "This is a string with a single quotation mark at the beginning!");
+//	assert(GenBankFeature::RemoveQuotationMarks(end_quotation_mark) == "This is a string with a single quotation mark at the end!");
+//}
+//
+//void GenBankParserTests::TestGetTypeAndContent() {
+//
+//	auto p = GenBankFeature::GetTypeAndContent("/protein_id=\"BAI29479.1\"");
+//	assert(p.first == "protein_id");
+//	assert(p.second == "\"BAI29479.1\"");
+//
+//	p = GenBankFeature::GetTypeAndContent("/type=\"NRPS\"");
+//	assert(p.first == "type");
+//	assert(p.second == "\"NRPS\"");
+//
+//}
 
 void GenBankParserTests::TestAll() {
 	std::cout << "Testing GenBankParserTests...\n";
 	TestParseHeader();
 	TestParseFeatures();
-	TestRemoveQuotationMarks();
-	TestGetTypeAndContent();
 	std::cout << "All GenBankParserTests passed!\n";
 }
